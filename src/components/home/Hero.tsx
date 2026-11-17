@@ -8,6 +8,7 @@ import {
   Quote,
   Sparkles,
 } from "lucide-react";
+import { Parallax } from "@/components/ui/Parallax";
 import { siteConfig } from "@/data/site";
 import { getWhatsAppLink } from "@/lib/whatsapp";
 
@@ -27,18 +28,27 @@ export function Hero() {
         aria-hidden="true"
         className="bg-grid pointer-events-none absolute inset-0 opacity-60 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
       />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 top-10 h-[32rem] w-[32rem] rounded-full bg-gold-500/[0.08] blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 top-1/4 h-[26rem] w-[26rem] rounded-full bg-navy-700/50 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-fire-500/[0.07] blur-3xl"
-      />
+      <Parallax
+        speed={0.06}
+        className="pointer-events-none absolute inset-0"
+      >
+        <div
+          aria-hidden="true"
+          className="absolute -left-40 top-10 h-[32rem] w-[32rem] rounded-full bg-gold-500/[0.08] blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -right-20 top-1/4 h-[26rem] w-[26rem] rounded-full bg-navy-700/50 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-fire-500/[0.07] blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute right-[16%] top-[14%] h-64 w-64 rounded-full bg-gold-400/[0.05] blur-3xl"
+        />
+      </Parallax>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         {embers.map((ember, index) => (
           <span
@@ -71,7 +81,7 @@ export function Hero() {
             </div>
 
             <h1
-              className="animate-rise display-title mt-7 text-[clamp(3.2rem,8.4vw,6.2rem)] text-cream"
+              className="animate-rise display-title mt-7 text-[clamp(2.7rem,11.5vw,6.2rem)] text-cream"
               style={{ animationDelay: "90ms" }}
             >
               Uma Igreja
@@ -151,15 +161,27 @@ export function Hero() {
               className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-gold-500/15"
             />
             <div className="relative overflow-hidden rounded-[1.6rem] border border-gold-500/30 bg-navy-900 p-2 shadow-[0_35px_90px_-40px_rgba(0,0,0,0.95)]">
-              <div className="relative aspect-[5/4] overflow-hidden rounded-[1.25rem] sm:aspect-[5/5.1]">
-                <Image
-                  src="/images/igreja/igreja.webp"
-                  alt="Membros da Igreja Pentecostal Aliança com Deus reunidos em frente à igreja em São Bernardo, Maranhão"
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 92vw, 42vw"
-                  className="object-cover object-[50%_42%]"
-                />
+              <div className="relative aspect-[1080/896] overflow-hidden rounded-[1.25rem]">
+                <div className="absolute inset-x-0 -inset-y-[8%]">
+                  <Image
+                    src="/images/igreja/igreja.webp"
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    sizes="(max-width: 1024px) 92vw, 42vw"
+                    className="scale-110 object-cover opacity-50 blur-2xl"
+                  />
+                  <Parallax speed={-0.06} className="absolute inset-0">
+                    <Image
+                      src="/images/igreja/igreja.webp"
+                      alt="Membros da Igreja Pentecostal Aliança com Deus reunidos em frente à igreja em São Bernardo, Maranhão"
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 92vw, 42vw"
+                      className="object-contain"
+                    />
+                  </Parallax>
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/95 via-navy-950/10 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                   <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-gold-300">
@@ -179,7 +201,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="animate-float absolute -bottom-7 -left-4 grid h-24 w-24 place-items-center rounded-full border border-gold-500/40 bg-black shadow-2xl sm:-left-8 sm:h-28 sm:w-28">
+            <div className="animate-float absolute -bottom-7 -left-4 hidden h-24 w-24 place-items-center rounded-full border border-gold-500/40 bg-black shadow-2xl sm:-left-8 sm:grid sm:h-28 sm:w-28">
               <Image
                 src="/images/logo/ipad-logo.webp"
                 alt="Logo da Igreja Pentecostal Aliança com Deus"

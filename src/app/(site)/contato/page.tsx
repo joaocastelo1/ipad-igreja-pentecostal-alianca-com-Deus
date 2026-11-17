@@ -375,14 +375,14 @@ export default function ContatoPage() {
                   key={service.id}
                   className="flex items-center justify-between gap-4 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
                 >
-                  <span className="flex items-center gap-2.5 text-sm text-cream">
+                  <span className="flex min-w-0 items-center gap-2.5 text-sm text-cream">
                     <CalendarDays
-                      className="h-4 w-4 text-gold-500"
+                      className="h-4 w-4 shrink-0 text-gold-500"
                       aria-hidden="true"
                     />
                     {service.day}
                   </span>
-                  <span className="text-[11px] text-mist/70">
+                  <span className="shrink-0 text-right text-[11px] text-mist/70">
                     {service.title}
                   </span>
                 </div>

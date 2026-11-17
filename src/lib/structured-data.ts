@@ -8,11 +8,12 @@ export const churchJsonLd = {
   alternateName: siteConfig.shortName,
   description: siteConfig.description,
   url: siteConfig.url,
-  logo: `${siteConfig.url}/images/logo/ipad-logo.png`,
+  logo: `${siteConfig.url}/images/logo/logo_p1.png`,
   image: `${siteConfig.url}/images/og/og-image.png`,
   slogan: siteConfig.tagline,
   address: {
     "@type": "PostalAddress",
+    streetAddress: siteConfig.address.line1,
     addressLocality: siteConfig.city,
     addressRegion: siteConfig.stateCode,
     postalCode: siteConfig.address.postalCode,

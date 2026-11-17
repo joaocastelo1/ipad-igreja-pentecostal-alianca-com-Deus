@@ -107,8 +107,27 @@ export default function PoliticaDePrivacidadePage() {
                         WhatsApp (opcional)
                       </td>
                       <td className="px-4 py-3">
-                        Entrar em contato somente quando a pessoa autoriza no
-                        formulário.
+                        Permitir que a equipe pastoral entre em contato, quando
+                        necessário e autorizado pelo envio do campo.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 align-top text-cream">
+                        E-mail (opcional)
+                      </td>
+                      <td className="px-4 py-3">
+                        Permitir eventual contato da equipe e retorno sobre o
+                        pedido.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 align-top text-cream">
+                        Categoria do pedido
+                      </td>
+                      <td className="px-4 py-3">
+                        Organizar o pedido por área (família, saúde, vida
+                        espiritual, financeiro, libertação ou outros) para
+                        direcionar a intercessão.
                       </td>
                     </tr>
                     <tr>
@@ -118,6 +137,15 @@ export default function PoliticaDePrivacidadePage() {
                       <td className="px-4 py-3">
                         Receber, registrar e interceder pelo pedido junto à
                         equipe pastoral.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-3 align-top text-cream">
+                        Data do consentimento
+                      </td>
+                      <td className="px-4 py-3">
+                        Registrar quando você autorizou o tratamento dos dados
+                        enviados.
                       </td>
                     </tr>
                     <tr>
@@ -163,8 +191,9 @@ export default function PoliticaDePrivacidadePage() {
                 O tratamento ocorre com base no consentimento fornecido ao
                 enviar o formulário e no legítimo interesse da igreja em
                 realizar seu atendimento pastoral e manter a segurança do site.
-                O contato por WhatsApp só acontece se você marcar a opção
-                correspondente.
+                O consentimento é obrigatório para o envio do pedido e fica
+                registrado com data e hora. WhatsApp e e-mail são opcionais e
+                servem apenas para eventual contato da equipe.
               </p>
 
               <h2>4. Compartilhamento</h2>

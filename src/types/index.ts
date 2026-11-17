@@ -72,7 +72,8 @@ export type EventItem = {
   id: string;
   slug: string;
   title: string;
-  date: string;
+  date?: string;
+  dateLabel?: string;
   time: string;
   location: string;
   description: string;
@@ -90,13 +91,14 @@ export type Testimonial = {
 };
 
 export type GalleryCategory =
-  | "Comunidade"
-  | "Cultos"
-  | "Evangelismo"
-  | "Missões"
-  | "Eventos"
-  | "Batismos"
-  | "Famílias";
+  | "Sede IPAD"
+  | "Congregação Madeiro"
+  | "Congregação Nova Esperança"
+  | "Congregação Vila São José"
+  | "Eventos e Festas"
+  | "Pastores";
+
+export type GalleryMediaType = "image" | "video";
 
 export type GalleryItem = {
   id: string;
@@ -106,6 +108,16 @@ export type GalleryItem = {
   category: GalleryCategory;
   width: number;
   height: number;
+  mediaType?: GalleryMediaType;
+  poster?: string;
+};
+
+export type GalleryAlbum = {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: GalleryCategory;
+  items: GalleryItem[];
 };
 
 export type VideoItem = {
@@ -116,12 +128,24 @@ export type VideoItem = {
   youtubeId: string;
 };
 
+export type PrayerCategory =
+  | "familia"
+  | "saude"
+  | "vida_espiritual"
+  | "financeiro"
+  | "libertacao"
+  | "outros";
+
+export type PrayerStatus = "recebido" | "em_oracao" | "concluido";
+
 export type PrayerRequest = {
   id: string;
   name: string;
   whatsapp: string | null;
+  email: string | null;
+  category: PrayerCategory;
   request: string;
-  wantsContact: boolean;
-  status: "new" | "read" | "prayed";
+  status: PrayerStatus;
   createdAt: string;
+  consentAt: string | null;
 };

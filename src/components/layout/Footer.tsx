@@ -27,7 +27,7 @@ export function Footer() {
       <div className="container-page relative">
         <div className="grid gap-12 py-16 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr] lg:gap-10 lg:py-20">
           <div>
-            <Logo size="lg" />
+            <Logo size="lg" variant="emblem" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-mist">
               Uma igreja alinhada com Deus, construída pela fé e comprometida
               com a oração, o evangelismo, as missões e a presença do Espírito
@@ -122,9 +122,22 @@ export function Footer() {
         <div className="gold-hairline" />
 
         <div className="flex flex-col gap-4 py-7 text-xs text-mist/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {year} {siteConfig.name}. Todos os direitos reservados.
-          </p>
+          <div>
+            <p>
+              © {year} {siteConfig.name}. Todos os direitos reservados.
+            </p>
+            <p className="mt-1.5">
+              Desenvolvido por João Castelo de Sousa Ferreira ·{" "}
+              <a
+                href="https://wa.me/5586999032854"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-gold-300 underline decoration-gold-500/40 underline-offset-2 transition-colors hover:text-gold-200"
+              >
+                WhatsApp (86) 99903-2854
+              </a>
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link
               href="/politica-de-privacidade"

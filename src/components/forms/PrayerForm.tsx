@@ -5,32 +5,45 @@ import Link from "next/link";
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronDown,
   Loader2,
   LockKeyhole,
   Send,
 } from "lucide-react";
+import { PRAYER_CATEGORY_OPTIONS } from "@/lib/prayer";
 import { prayerRequestSchema } from "@/lib/validation";
 import { cn } from "@/lib/utils";
+import type { PrayerCategory } from "@/types";
 
 type FormValues = {
   name: string;
   whatsapp: string;
+  email: string;
+  category: PrayerCategory;
   request: string;
-  wantsContact: boolean;
+  consent: boolean;
   website: string;
 };
 
 type FormErrors = Partial<
-  Record<"name" | "whatsapp" | "request" | "form", string>
+  Record<
+    "name" | "whatsapp" | "email" | "category" | "request" | "consent" | "form",
+    string
+  >
 >;
 
 const initialValues: FormValues = {
   name: "",
   whatsapp: "",
+  email: "",
+  category: "outros",
   request: "",
-  wantsContact: false,
+  consent: false,
   website: "",
 };
+
+const successMessage =
+  "Seu pedido foi recebido! A Igreja Aliança com Deus estará em oração por você. Que Deus fortaleça sua fé e abençoe sua vida.";
 
 const inputClass =
   "min-h-12 w-full rounded-xl border border-white/[0.09] bg-navy-950/60 px-4 py-3 text-[15px] text-cream outline-none transition-colors placeholder:text-mist/35 focus:border-gold-400/60 focus:ring-2 focus:ring-gold-500/10";
@@ -42,6 +55,8 @@ export function PrayerForm() {
     "idle",
   );
   const [serverMessage, setServerMessage] = useState("");
+  const [confirmationMessage, setConfirmationMessage] =
+    useState(successMessage);
   const formRef = useRef<HTMLFormElement>(null);
 
   const update = <Key extends keyof FormValues>(
@@ -63,14 +78,17 @@ export function PrayerForm() {
       const nextErrors: FormErrors = {
         name: fieldErrors.name?.[0],
         whatsapp: fieldErrors.whatsapp?.[0],
+        email: fieldErrors.email?.[0],
+        category: fieldErrors.category?.[0],
         request: fieldErrors.request?.[0],
+        consent: fieldErrors.consent?.[0],
         form: fieldErrors.website?.[0],
       };
 
       setErrors(nextErrors);
 
       const firstInvalid = (
-        ["name", "whatsapp", "request"] as const
+        ["name", "whatsapp", "email", "category", "request", "consent"] as const
       ).find((field) => nextErrors[field]);
 
       if (firstInvalid) {
@@ -108,6 +126,7 @@ export function PrayerForm() {
         );
       }
 
+      setConfirmationMessage(data?.message ?? successMessage);
       setStatus("success");
       setValues(initialValues);
       setErrors({});
@@ -137,11 +156,10 @@ export function PrayerForm() {
             <CheckCircle2 className="h-8 w-8" aria-hidden="true" />
           </span>
           <h2 className="display-title mt-6 text-3xl text-cream sm:text-4xl">
-            Recebemos o seu pedido
+            Pedido recebido
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-mist sm:text-base">
-            Obrigado por compartilhar. Nossa equipe de intercessão vai orar por
-            você. Seu pedido não será exibido publicamente.
+            {confirmationMessage}
           </p>
           <button
             type="button"
@@ -274,6 +292,86 @@ export function PrayerForm() {
             </p>
           ) : null}
         </div>
+
+        <div>
+          <label
+            htmlFor="prayer-email"
+            className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-sand"
+          >
+            E-mail <span className="text-mist/50">(opcional)</span>
+          </label>
+          <input
+            id="prayer-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="voce@email.com"
+            value={values.email}
+            onChange={(event) => update("email", event.target.value)}
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "prayer-email-error" : undefined}
+            className={cn(inputClass, errors.email && "border-fire-500/60")}
+          />
+          {errors.email ? (
+            <p
+              id="prayer-email-error"
+              className="mt-1.5 text-xs text-fire-400"
+            >
+              {errors.email}
+            </p>
+          ) : null}
+        </div>
+
+        <div>
+          <label
+            htmlFor="prayer-category"
+            className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-sand"
+          >
+            Categoria <span className="text-gold-400">*</span>
+          </label>
+          <div className="relative">
+            <select
+              id="prayer-category"
+              name="category"
+              value={values.category}
+              onChange={(event) =>
+                update("category", event.target.value as PrayerCategory)
+              }
+              aria-invalid={Boolean(errors.category)}
+              aria-describedby={
+                errors.category ? "prayer-category-error" : undefined
+              }
+              className={cn(
+                inputClass,
+                "appearance-none pr-10",
+                errors.category && "border-fire-500/60",
+              )}
+            >
+              {PRAYER_CATEGORY_OPTIONS.map((option) => (
+                <option
+                  key={option.value}
+                  value={option.value}
+                  className="bg-navy-950 text-cream"
+                >
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-400"
+              aria-hidden="true"
+            />
+          </div>
+          {errors.category ? (
+            <p
+              id="prayer-category-error"
+              className="mt-1.5 text-xs text-fire-400"
+            >
+              {errors.category}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-5">
@@ -315,49 +413,56 @@ export function PrayerForm() {
         ) : null}
       </div>
 
-      <fieldset className="mt-6">
-        <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-sand">
-          Deseja receber contato?
-        </legend>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {[
-            { value: true, label: "Sim, gostaria" },
-            { value: false, label: "Não, apenas o pedido" },
-          ].map((option) => (
-            <label
-              key={String(option.value)}
-              className={cn(
-                "flex min-h-12 items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors",
-                values.wantsContact === option.value
-                  ? "border-gold-500/45 bg-gold-500/[0.07] text-cream"
-                  : "border-white/[0.08] bg-navy-950/40 text-mist hover:border-white/20",
-              )}
-            >
-              <input
-                type="radio"
-                name="wantsContact"
-                value={String(option.value)}
-                checked={values.wantsContact === option.value}
-                onChange={() => update("wantsContact", option.value)}
-                className="h-4 w-4 accent-[#c9a45c]"
-              />
-              {option.label}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <p className="mt-6 text-xs leading-relaxed text-mist/60">
-        Seus dados são utilizados apenas para receber e interceder pelo seu
-        pedido. Nenhum pedido é exibido publicamente. Ao enviar, você declara
-        estar de acordo com a nossa{" "}
-        <Link
-          href="/politica-de-privacidade"
-          className="text-gold-300 underline decoration-gold-500/40 underline-offset-2 hover:text-gold-200"
+      <div className="mt-6">
+        <label
+          htmlFor="prayer-consent"
+          className={cn(
+            "flex cursor-pointer items-start gap-3 rounded-xl border px-4 py-3.5 text-xs leading-relaxed transition-colors",
+            values.consent
+              ? "border-gold-500/40 bg-gold-500/[0.06] text-sand"
+              : "border-white/[0.08] bg-navy-950/40 text-mist hover:border-white/20",
+            errors.consent && "border-fire-500/60",
+          )}
         >
-          Política de Privacidade
-        </Link>
-        .
+          <input
+            id="prayer-consent"
+            name="consent"
+            type="checkbox"
+            checked={values.consent}
+            onChange={(event) => update("consent", event.target.checked)}
+            aria-invalid={Boolean(errors.consent)}
+            aria-describedby={
+              errors.consent ? "prayer-consent-error" : undefined
+            }
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[#c9a45c]"
+          />
+          <span>
+            Autorizo o armazenamento dos meus dados para que a Igreja
+            Pentecostal Aliança com Deus receba e interceda por este pedido,
+            conforme a{" "}
+            <Link
+              href="/politica-de-privacidade"
+              className="text-gold-300 underline decoration-gold-500/40 underline-offset-2 hover:text-gold-200"
+            >
+              Política de Privacidade
+            </Link>
+            . <span className="text-gold-400">*</span>
+          </span>
+        </label>
+        {errors.consent ? (
+          <p
+            id="prayer-consent-error"
+            className="mt-1.5 text-xs text-fire-400"
+          >
+            {errors.consent}
+          </p>
+        ) : null}
+      </div>
+
+      <p className="mt-5 text-xs leading-relaxed text-mist/60">
+        Seus dados são utilizados apenas para receber e interceder pelo seu
+        pedido. Nenhum pedido é exibido publicamente. O WhatsApp e o e-mail são
+        opcionais e servem apenas para eventual contato da equipe.
       </p>
 
       <button

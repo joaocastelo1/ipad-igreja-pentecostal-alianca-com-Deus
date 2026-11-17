@@ -5,13 +5,11 @@ import { requireAdmin } from "@/lib/auth/server";
 import {
   deletePrayerRequest,
   updatePrayerRequestStatus,
-  type PrayerStatus,
 } from "@/lib/prayer-store";
+import { isPrayerStatus } from "@/lib/prayer";
 
 const UUID_PATTERN =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-
-const validStatuses: PrayerStatus[] = ["new", "read", "prayed"];
 
 function getPrayerId(formData: FormData): string {
   const id = formData.get("id");
@@ -29,10 +27,9 @@ export async function updatePrayerStatusAction(
   await requireAdmin();
 
   const id = getPrayerId(formData);
-  const rawStatus = formData.get("status");
-  const status = validStatuses.find((value) => value === rawStatus);
+  const status = formData.get("status");
 
-  if (!status) {
+  if (!isPrayerStatus(status)) {
     throw new Error("Status inválido.");
   }
 

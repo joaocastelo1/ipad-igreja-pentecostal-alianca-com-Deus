@@ -47,6 +47,9 @@ Copie `.env.example` para `.env.local` e preencha os valores.
 | `SUPABASE_URL` | Opcional | URL do projeto Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Opcional | Chave secreta do Supabase (server-side) |
 | `PRAYER_TABLE` | Opcional | Nome da tabela (padrão `prayer_requests`) |
+| `RESEND_API_KEY` | Opcional | API key do Resend para notificar novos pedidos |
+| `PRAYER_NOTIFICATION_EMAIL` | Opcional | E-mail da equipe que recebe os avisos |
+| `PRAYER_NOTIFICATION_FROM` | Opcional | Remetente verificado no Resend |
 
 Também é aceito `NEXT_PUBLIC_SUPABASE_URL` como alternativa a `SUPABASE_URL`.
 
@@ -73,8 +76,17 @@ Server Action também valida a sessão no servidor.
 ## Pedidos de oração
 
 O formulário fica em `/pedido-de-oracao` e envia para
-`POST /api/pedido-de-oracao`. A rota valida com Zod, aplica limite de tentativas
-e grava o pedido.
+`POST /api/pedido-de-oracao`. A rota valida com Zod, exige consentimento,
+aplica limite de tentativas e grava o pedido. Campos disponíveis:
+
+- nome (obrigatório), WhatsApp e e-mail (opcionais);
+- categoria: família, saúde, vida espiritual, financeiro, libertação ou outros;
+- texto do pedido (10 a 2000 caracteres);
+- consentimento explícito para tratamento dos dados.
+
+Os status usados no painel são `recebido`, `em_oracao` e `concluido`. O painel
+`/admin` mostra estatísticas, permite buscar por nome e filtrar por categoria,
+status e período, além de alterar o status e excluir pedidos.
 
 ### Armazenamento local
 
@@ -85,26 +97,39 @@ não é persistente.
 
 ### Supabase (recomendado em produção)
 
-Crie a tabela no SQL Editor:
+Execute a migração em `supabase/migrations/20261114000000_prayer_requests.sql`
+no SQL Editor do projeto (ou com a CLI do Supabase). Ela cria/atualiza a tabela,
+migra registros antigos, valida os dados, cria índices e configura a segurança.
+
+Estrutura principal:
 
 ```sql
-create table if not exists public.prayer_requests (
+create table public.prayer_requests (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   whatsapp text,
-  request text not null,
-  wants_contact boolean not null default false,
-  status text not null default 'new'
-    check (status in ('new', 'read', 'prayed')),
-  created_at timestamptz not null default now()
+  email text,
+  category text not null default 'outros',
+  request_message text not null,
+  status text not null default 'recebido',
+  created_at timestamptz not null default now(),
+  consent_at timestamptz
 );
-
-alter table public.prayer_requests enable row level security;
-revoke all on public.prayer_requests from anon, authenticated;
 ```
 
-A aplicação usa a `service_role` apenas no servidor. Nunca exponha essa chave
-com o prefixo `NEXT_PUBLIC_`.
+A migração habilita RLS, bloqueia `anon` e `authenticated` e mantém acesso
+apenas pela `service_role` no servidor. Não há política pública de leitura ou
+escrita: os envios passam exclusivamente pela API validada do site. A aplicação
+usa a `service_role` apenas no servidor. Nunca exponha essa chave com o prefixo
+`NEXT_PUBLIC_`.
+
+### Notificação por e-mail (opcional)
+
+Com `RESEND_API_KEY`, `PRAYER_NOTIFICATION_EMAIL` e
+`PRAYER_NOTIFICATION_FROM` definidos, a equipe recebe um aviso quando um novo
+pedido chega. Por segurança, o e-mail informa apenas nome, categoria e data,
+com link para o painel. O texto do pedido permanece somente no banco e no
+painel administrativo.
 
 ## Conteúdo
 

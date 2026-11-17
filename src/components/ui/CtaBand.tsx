@@ -46,7 +46,7 @@ export function CtaBand({
               <p className="text-pretty mt-4 max-w-2xl text-sm leading-relaxed text-mist sm:text-base">
                 {description}
               </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <div className="mt-8 flex w-full max-w-sm flex-col items-stretch justify-center gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:items-center">
                 {children}
               </div>
             </div>

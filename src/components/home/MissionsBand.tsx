@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Globe2, HandHeart, Megaphone } from "lucide-react";
+import { Parallax } from "@/components/ui/Parallax";
 import { Reveal } from "@/components/ui/Reveal";
 import { siteConfig } from "@/data/site";
 
@@ -13,13 +14,17 @@ const pillars = [
 export function MissionsBand() {
   return (
     <section className="relative isolate overflow-hidden border-y border-gold-500/20">
-      <Image
-        src="/images/igreja/igreja-familia.webp"
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover object-center opacity-45"
-      />
+      <div className="absolute inset-x-0 -inset-y-[14%]">
+        <Parallax speed={-0.24} className="absolute inset-0">
+          <Image
+            src="/images/igreja/igreja-familia.webp"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover object-center opacity-45"
+          />
+        </Parallax>
+      </div>
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-r from-navy-950 via-navy-950/92 to-navy-950/45"
@@ -37,7 +42,7 @@ export function MissionsBand() {
         <div className="max-w-3xl">
           <Reveal>
             <span className="eyebrow">Evangelismo e missões</span>
-            <h2 className="display-title mt-5 text-[clamp(2.6rem,6vw,4.8rem)] text-cream">
+            <h2 className="display-title mt-5 text-[clamp(2.2rem,8.5vw,4.8rem)] text-cream">
               Levando o Evangelho{" "}
               <span className="gold-text italic">
                 além das paredes da igreja

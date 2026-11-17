@@ -65,7 +65,7 @@ export function PageHero({
             </ol>
           </nav>
           <span className="eyebrow">{eyebrow}</span>
-          <h1 className="display-title mt-5 max-w-4xl text-[clamp(2.75rem,6.5vw,5.25rem)] text-cream">
+          <h1 className="display-title mt-5 max-w-4xl text-[clamp(2.4rem,8.5vw,5.25rem)] text-cream">
             {title}
           </h1>
           {description ? (

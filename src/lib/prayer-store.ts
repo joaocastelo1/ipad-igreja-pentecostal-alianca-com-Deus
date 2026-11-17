@@ -3,8 +3,9 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { PrayerRequest } from "@/types";
 import type { PrayerRequestInput } from "@/lib/validation";
+import { isPrayerCategory, isPrayerStatus } from "@/lib/prayer";
 
-export type PrayerStatus = PrayerRequest["status"];
+export type { PrayerStatus } from "@/types";
 export type PrayerStoreMode = "supabase" | "local";
 
 type SupabaseConfig = {
@@ -17,10 +18,12 @@ type SupabaseRow = {
   id: string;
   name: string;
   whatsapp: string | null;
-  request: string;
-  wants_contact: boolean;
-  status: PrayerStatus;
+  email: string | null;
+  category: string | null;
+  request_message: string;
+  status: string;
   created_at: string;
+  consent_at: string | null;
 };
 
 const LOCAL_FILE = path.join(
@@ -59,38 +62,72 @@ export function getPrayerStoreMode(): PrayerStoreMode {
   return getSupabaseConfig() ? "supabase" : "local";
 }
 
-function isPrayerStatus(value: unknown): value is PrayerStatus {
-  return value === "new" || value === "read" || value === "prayed";
-}
-
 function mapSupabaseRow(row: SupabaseRow): PrayerRequest {
   return {
     id: row.id,
     name: row.name,
     whatsapp: row.whatsapp || null,
-    request: row.request,
-    wantsContact: Boolean(row.wants_contact),
-    status: isPrayerStatus(row.status) ? row.status : "new",
+    email: row.email || null,
+    category: isPrayerCategory(row.category) ? row.category : "outros",
+    request: row.request_message,
+    status: isPrayerStatus(row.status) ? row.status : "recebido",
     createdAt: row.created_at,
+    consentAt: row.consent_at,
   };
 }
 
-function isPrayerRequest(value: unknown): value is PrayerRequest {
+function normalizeStoredRequest(value: unknown): PrayerRequest | null {
   if (!value || typeof value !== "object") {
-    return false;
+    return null;
   }
 
-  const item = value as Partial<PrayerRequest>;
+  const item = value as Record<string, unknown>;
 
-  return (
-    typeof item.id === "string" &&
-    typeof item.name === "string" &&
-    (item.whatsapp === null || typeof item.whatsapp === "string") &&
-    typeof item.request === "string" &&
-    typeof item.wantsContact === "boolean" &&
-    isPrayerStatus(item.status) &&
-    typeof item.createdAt === "string"
-  );
+  if (typeof item.id !== "string" || typeof item.name !== "string") {
+    return null;
+  }
+
+  const request =
+    typeof item.request_message === "string"
+      ? item.request_message
+      : typeof item.request === "string"
+        ? item.request
+        : null;
+
+  if (!request) {
+    return null;
+  }
+
+  const legacyStatus =
+    item.status === "new"
+      ? "recebido"
+      : item.status === "read"
+        ? "em_oracao"
+        : item.status === "prayed"
+          ? "concluido"
+          : item.status;
+
+  return {
+    id: item.id,
+    name: item.name,
+    whatsapp: typeof item.whatsapp === "string" ? item.whatsapp : null,
+    email: typeof item.email === "string" ? item.email : null,
+    category: isPrayerCategory(item.category) ? item.category : "outros",
+    request,
+    status: isPrayerStatus(legacyStatus) ? legacyStatus : "recebido",
+    createdAt:
+      typeof item.created_at === "string"
+        ? item.created_at
+        : typeof item.createdAt === "string"
+          ? item.createdAt
+          : new Date().toISOString(),
+    consentAt:
+      typeof item.consent_at === "string"
+        ? item.consent_at
+        : typeof item.consentAt === "string"
+          ? item.consentAt
+          : null,
+  };
 }
 
 async function supabaseRequest(
@@ -130,7 +167,9 @@ async function readLocalFile(): Promise<PrayerRequest[]> {
       return [];
     }
 
-    return parsed.filter(isPrayerRequest);
+    return parsed
+      .map(normalizeStoredRequest)
+      .filter((item): item is PrayerRequest => item !== null);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return [];
@@ -167,8 +206,9 @@ function normalizeInput(input: PrayerRequestInput) {
   return {
     name: input.name.trim(),
     whatsapp: input.whatsapp?.trim() || null,
+    email: input.email?.trim().toLowerCase() || null,
+    category: input.category,
     request: input.request.trim(),
-    wantsContact: input.wantsContact,
   };
 }
 
@@ -176,6 +216,7 @@ export async function createPrayerRequest(
   input: PrayerRequestInput,
 ): Promise<PrayerRequest> {
   const data = normalizeInput(input);
+  const consentAt = new Date().toISOString();
   const config = getSupabaseConfig();
 
   if (config) {
@@ -187,9 +228,11 @@ export async function createPrayerRequest(
       body: JSON.stringify({
         name: data.name,
         whatsapp: data.whatsapp,
-        request: data.request,
-        wants_contact: data.wantsContact,
-        status: "new",
+        email: data.email,
+        category: data.category,
+        request_message: data.request,
+        status: "recebido",
+        consent_at: consentAt,
       }),
     });
 
@@ -209,10 +252,12 @@ export async function createPrayerRequest(
       id: randomUUID(),
       name: data.name,
       whatsapp: data.whatsapp,
+      email: data.email,
+      category: data.category,
       request: data.request,
-      wantsContact: data.wantsContact,
-      status: "new",
-      createdAt: new Date().toISOString(),
+      status: "recebido",
+      createdAt: consentAt,
+      consentAt,
     };
 
     requests.unshift(created);
@@ -228,7 +273,7 @@ export async function listPrayerRequests(): Promise<PrayerRequest[]> {
   if (config) {
     const response = await supabaseRequest(
       config,
-      "?select=*&order=created_at.desc&limit=500",
+      "?select=id,name,whatsapp,email,category,request_message,status,created_at,consent_at&order=created_at.desc&limit=500",
       { method: "GET" },
     );
 
@@ -246,9 +291,9 @@ export async function listPrayerRequests(): Promise<PrayerRequest[]> {
 
 export async function updatePrayerRequestStatus(
   id: string,
-  status: PrayerStatus,
+  status: PrayerRequest["status"],
 ): Promise<void> {
-  if (!UUID_PATTERN.test(id)) {
+  if (!UUID_PATTERN.test(id) || !isPrayerStatus(status)) {
     throw new Error("Pedido inválido.");
   }
 

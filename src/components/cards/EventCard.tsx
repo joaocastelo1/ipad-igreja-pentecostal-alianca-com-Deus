@@ -15,7 +15,7 @@ export function EventCard({ event, index }: EventCardProps) {
     <Reveal delay={index * 80} as="article" className="h-full">
       <article
         id={event.slug}
-        className="surface card-hover group flex h-full scroll-mt-28 flex-col overflow-hidden rounded-2xl"
+        className="surface card-hover group flex h-full scroll-mt-28 flex-col overflow-hidden rounded-2xl transition-transform duration-500 hover:-translate-y-1 motion-reduce:hover:translate-y-0"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-navy-800">
           {event.image ? (
@@ -52,7 +52,13 @@ export function EventCard({ event, index }: EventCardProps) {
                 className="h-3.5 w-3.5 text-gold-500"
                 aria-hidden="true"
               />
-              <time dateTime={event.date}>{formatEventDate(event.date)}</time>
+              {event.date ? (
+                <time dateTime={event.date}>
+                  {event.dateLabel ?? formatEventDate(event.date)}
+                </time>
+              ) : (
+                <span>{event.dateLabel ?? "Data a divulgar"}</span>
+              )}
             </p>
             <p className="flex items-center gap-2">
               <Clock

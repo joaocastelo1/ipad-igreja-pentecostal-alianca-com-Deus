@@ -7,22 +7,79 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
-  X,
+  Maximize2,
+  Pause,
+  Play,
+  Video,
 } from "lucide-react";
+import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 import { galleryCategories, galleryItems, galleryNote } from "@/data/gallery";
 import { cn } from "@/lib/utils";
-import type { GalleryCategory } from "@/types";
+import type { GalleryCategory, GalleryItem } from "@/types";
 
 type Filter = "Todos" | GalleryCategory;
 
 const filters: Filter[] = ["Todos", ...galleryCategories];
 
+const AUTOPLAY_DELAY = 5500;
+
+function GalleryMedia({
+  item,
+  active,
+  priority,
+  reducedMotion,
+}: {
+  item: GalleryItem;
+  active: boolean;
+  priority: boolean;
+  reducedMotion: boolean;
+}) {
+  if (item.mediaType === "video") {
+    return active ? (
+      <video
+        src={item.src}
+        poster={item.poster}
+        muted
+        loop
+        autoPlay={!reducedMotion}
+        playsInline
+        controls
+        preload="metadata"
+        aria-label={item.alt}
+        className="absolute inset-0 h-full w-full object-contain"
+      />
+    ) : (
+      <Image
+        src={item.poster ?? "/images/og/og-image.png"}
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="(max-width: 1024px) 92vw, 64rem"
+        className="object-contain"
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={item.src}
+      alt={item.alt}
+      fill
+      sizes="(max-width: 1024px) 92vw, 64rem"
+      quality={90}
+      className="object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+      priority={priority}
+    />
+  );
+}
+
 export function Gallery() {
   const [activeFilter, setActiveFilter] = useState<Filter>("Todos");
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const filtered = useMemo(() => {
     if (activeFilter === "Todos") {
@@ -32,90 +89,40 @@ export function Gallery() {
     return galleryItems.filter((item) => item.category === activeFilter);
   }, [activeFilter]);
 
-  const current =
-    selectedIndex !== null ? filtered[selectedIndex] ?? null : null;
+  const total = filtered.length;
 
-  const close = useCallback(() => {
-    setSelectedIndex(null);
-    window.setTimeout(() => triggerRef.current?.focus(), 20);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+
+    update();
+    media.addEventListener("change", update);
+
+    return () => media.removeEventListener("change", update);
   }, []);
 
-  const move = useCallback(
+  const go = useCallback(
     (direction: -1 | 1) => {
-      if (selectedIndex === null || filtered.length === 0) {
+      if (total === 0) {
         return;
       }
 
-      const next =
-        (selectedIndex + direction + filtered.length) % filtered.length;
-      setSelectedIndex(next);
+      setIndex((previous) => (previous + direction + total) % total);
     },
-    [filtered.length, selectedIndex],
+    [total],
   );
 
   useEffect(() => {
-    if (selectedIndex === null) {
+    if (paused || reducedMotion || total <= 1) {
       return;
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const timer = window.setInterval(() => {
+      setIndex((previous) => (previous + 1) % total);
+    }, AUTOPLAY_DELAY);
 
-    const timer = window.setTimeout(() => closeRef.current?.focus(), 30);
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        close();
-        return;
-      }
-
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        move(1);
-        return;
-      }
-
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        move(-1);
-        return;
-      }
-
-      if (event.key !== "Tab" || !dialogRef.current) {
-        return;
-      }
-
-      const focusables = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((element) => element.offsetParent !== null);
-
-      if (focusables.length === 0) {
-        return;
-      }
-
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.clearTimeout(timer);
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [close, move, selectedIndex]);
+    return () => window.clearInterval(timer);
+  }, [paused, reducedMotion, total]);
 
   const counts = useMemo(() => {
     return galleryItems.reduce<Record<string, number>>((acc, item) => {
@@ -125,18 +132,16 @@ export function Gallery() {
   }, []);
 
   return (
-    <div>
+    <>
       <div
         className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
-        role="group"
-        aria-label="Filtrar fotos por categoria"
-      >
+          role="group"
+          aria-label="Filtrar fotos por categoria"
+        >
         {filters.map((filter) => {
           const active = activeFilter === filter;
           const count =
-            filter === "Todos"
-              ? galleryItems.length
-              : (counts[filter] ?? 0);
+            filter === "Todos" ? galleryItems.length : (counts[filter] ?? 0);
 
           return (
             <button
@@ -145,7 +150,9 @@ export function Gallery() {
               aria-pressed={active}
               onClick={() => {
                 setActiveFilter(filter);
-                setSelectedIndex(null);
+                setIndex(0);
+                setPaused(false);
+                setLightboxIndex(null);
               }}
               className={cn(
                 "inline-flex min-h-10 shrink-0 items-center gap-2 rounded-full border px-4 text-xs font-semibold transition-colors",
@@ -168,7 +175,7 @@ export function Gallery() {
         })}
       </div>
 
-      {filtered.length === 0 ? (
+      {total === 0 ? (
         <div className="surface mt-8 flex flex-col items-center rounded-2xl px-6 py-16 text-center">
           <div className="grid h-16 w-16 place-items-center rounded-full border border-gold-500/25 bg-gold-500/[0.06] text-gold-300">
             <Camera className="h-6 w-6" aria-hidden="true" />
@@ -181,7 +188,10 @@ export function Gallery() {
           </p>
           <button
             type="button"
-            onClick={() => setActiveFilter("Todos")}
+            onClick={() => {
+              setActiveFilter("Todos");
+              setIndex(0);
+            }}
             className="btn btn-outline btn-sm mt-6"
           >
             <Images className="h-4 w-4" aria-hidden="true" />
@@ -189,122 +199,221 @@ export function Gallery() {
           </button>
         </div>
       ) : (
-        <div className="mt-8 columns-1 gap-4 sm:columns-2 lg:columns-3">
-          {filtered.map((item, index) => (
-            <div key={item.id} className="mb-4 break-inside-avoid">
+        <div className="mt-8">
+          <div
+            role="region"
+            aria-roledescription="carrossel"
+            aria-label="Galeria de fotos em carrossel"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") {
+                event.preventDefault();
+                go(1);
+              } else if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                go(-1);
+              }
+            }}
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocus={() => setPaused(true)}
+            onBlur={() => setPaused(false)}
+            onTouchStart={(event) => {
+              const touch = event.touches[0];
+              touchStart.current = { x: touch.clientX, y: touch.clientY };
+            }}
+            onTouchEnd={(event) => {
+              if (!touchStart.current) {
+                return;
+              }
+
+              const touch = event.changedTouches[0];
+              const deltaX = touch.clientX - touchStart.current.x;
+              const deltaY = touch.clientY - touchStart.current.y;
+              touchStart.current = null;
+
+              if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                go(deltaX < 0 ? 1 : -1);
+              }
+            }}
+            className="group relative touch-pan-y overflow-hidden rounded-[1.75rem] border border-white/[0.08] bg-navy-950 outline-none ring-gold-500/40 focus-visible:ring-2"
+          >
+            <div
+              className="flex transition-transform duration-700 ease-[cubic-bezier(0.2,0.7,0.2,1)] motion-reduce:transition-none"
+              style={{ transform: `translateX(-${index * 100}%)` }}
+            >
+              {filtered.map((item, itemIndex) => (
+                <div
+                  key={item.id}
+                  className="relative w-full shrink-0"
+                  aria-hidden={itemIndex !== index}
+                >
+                  <div className="relative h-[68vw] min-h-[20rem] max-h-[34rem] bg-black/40 sm:h-[46vw] lg:h-[32rem]">
+                    <Image
+                      src={
+                        item.mediaType === "video"
+                          ? (item.poster ?? "/images/og/og-image.png")
+                          : item.src
+                      }
+                      alt=""
+                      aria-hidden="true"
+                      fill
+                      sizes="(max-width: 1024px) 92vw, 64rem"
+                      className="scale-110 object-cover opacity-45 blur-2xl"
+                    />
+                    <span className="absolute inset-0 bg-navy-950/40" />
+                    <GalleryMedia
+                      item={item}
+                      active={itemIndex === index}
+                      priority={itemIndex === 0}
+                      reducedMotion={reducedMotion}
+                    />
+                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/5 to-transparent" />
+
+                    {itemIndex === index && item.mediaType !== "video" ? (
+                      <button
+                        type="button"
+                        onClick={() => setLightboxIndex(itemIndex)}
+                        aria-label={`Ampliar foto: ${item.caption}`}
+                        className="absolute inset-0 cursor-zoom-in"
+                      />
+                    ) : null}
+
+                    <span className="pointer-events-none absolute right-4 top-16 grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-navy-950/70 text-gold-200 opacity-100 backdrop-blur-md transition-opacity duration-300 sm:opacity-0 sm:group-hover:opacity-100">
+                      <Maximize2 className="h-4 w-4" aria-hidden="true" />
+                    </span>
+
+                    <span
+                      className={cn(
+                        "pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-7",
+                        item.mediaType === "video" && "pb-14",
+                      )}
+                    >
+                      <span>
+                        <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-gold-300">
+                          {item.category}
+                        </span>
+                        <span className="mt-1 block font-display text-2xl font-semibold text-cream sm:text-3xl">
+                          {item.caption}
+                        </span>
+                      </span>
+                      {item.mediaType === "video" && itemIndex === index ? (
+                        <button
+                          type="button"
+                          onClick={() => setLightboxIndex(itemIndex)}
+                          aria-label={`Ampliar vídeo: ${item.caption}`}
+                          className="pointer-events-auto grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-navy-950/70 text-gold-200 backdrop-blur-md transition-colors hover:bg-gold-500/20"
+                        >
+                          <Video className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      ) : null}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-navy-950/70 px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] text-sand backdrop-blur-md">
+              <span aria-live="polite">
+                {index + 1} / {total}
+              </span>
+            </div>
+
+            {total > 1 ? (
               <button
                 type="button"
-                onClick={(event) => {
-                  triggerRef.current = event.currentTarget;
-                  setSelectedIndex(index);
-                }}
-                className="group relative block w-full overflow-hidden rounded-2xl border border-white/[0.07] bg-navy-900 text-left"
-                aria-label={`Ampliar foto: ${item.caption}`}
+                onClick={() => setPaused((value) => !value)}
+                aria-label={paused ? "Retomar carrossel" : "Pausar carrossel"}
+                className="icon-button absolute right-4 top-3 bg-navy-950/70"
               >
-                <Image
-                  src={item.src}
-                  alt={item.alt}
-                  width={item.width}
-                  height={item.height}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="h-auto w-full object-cover transition duration-700 group-hover:scale-[1.025]"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-95" />
-                <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
-                  <span>
-                    <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-gold-300">
-                      {item.category}
-                    </span>
-                    <span className="mt-1 block font-display text-xl font-semibold text-cream">
-                      {item.caption}
-                    </span>
-                  </span>
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 text-cream opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
-                    <Images className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                </span>
+                {paused ? (
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Pause className="h-4 w-4" aria-hidden="true" />
+                )}
               </button>
+            ) : null}
+
+            {total > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => go(-1)}
+                  aria-label="Foto anterior"
+                  className="icon-button absolute left-3 top-1/2 -translate-y-1/2 bg-navy-950/70"
+                >
+                  <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go(1)}
+                  aria-label="Próxima foto"
+                  className="icon-button absolute right-3 top-1/2 -translate-y-1/2 bg-navy-950/70"
+                >
+                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </>
+            ) : null}
+          </div>
+
+          {total > 1 ? (
+            <div
+              className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1"
+              role="tablist"
+              aria-label="Miniaturas da galeria"
+            >
+              {filtered.map((item, itemIndex) => {
+                const active = itemIndex === index;
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    aria-label={`Ver: ${item.caption}`}
+                    onClick={() => setIndex(itemIndex)}
+                    className={cn(
+                      "relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border transition duration-300",
+                      active
+                        ? "border-gold-400/70 opacity-100"
+                        : "border-white/10 opacity-55 hover:opacity-100",
+                    )}
+                  >
+                    <Image
+                      src={
+                        item.mediaType === "video"
+                          ? (item.poster ?? "/images/og/og-image.png")
+                          : item.src
+                      }
+                      alt=""
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
+                    {item.mediaType === "video" ? (
+                      <span className="absolute inset-0 grid place-items-center bg-navy-950/35">
+                        <span className="grid h-6 w-6 place-items-center rounded-full border border-white/30 bg-navy-950/70 text-gold-200">
+                          <Play className="h-3 w-3" aria-hidden="true" />
+                        </span>
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
-          ))}
+          ) : null}
         </div>
       )}
 
-      {current && selectedIndex !== null ? (
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-navy-950/95 p-4 backdrop-blur-md sm:p-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Foto: ${current.caption}`}
-          ref={dialogRef}
-        >
-          <button
-            type="button"
-            aria-label="Fechar galeria"
-            className="absolute inset-0 h-full w-full cursor-default"
-            tabIndex={-1}
-            onClick={close}
-          />
-          <div className="relative z-10 flex max-h-full w-full max-w-5xl flex-col items-center">
-            <div className="mb-4 flex w-full items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-300">
-                  {current.category}
-                </p>
-                <h3
-                  id="lightbox-title"
-                  className="mt-1 truncate font-display text-xl text-cream sm:text-2xl"
-                >
-                  {current.caption}
-                </h3>
-              </div>
-              <button
-                ref={closeRef}
-                type="button"
-                onClick={close}
-                className="icon-button shrink-0 bg-navy-950/80"
-                aria-label="Fechar foto"
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="relative flex w-full items-center justify-center overflow-hidden rounded-2xl border border-gold-500/20 bg-black/40">
-              <Image
-                key={current.id}
-                src={current.src}
-                alt={current.alt}
-                width={current.width}
-                height={current.height}
-                sizes="90vw"
-                className="max-h-[68vh] w-auto object-contain sm:max-h-[72vh]"
-                priority
-              />
-            </div>
-
-            <div className="mt-4 flex w-full items-center justify-between gap-4">
-              <button
-                type="button"
-                onClick={() => move(-1)}
-                className="icon-button"
-                aria-label="Foto anterior"
-              >
-                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <p className="text-xs text-mist/60" aria-live="polite">
-                {selectedIndex + 1} de {filtered.length}
-              </p>
-              <button
-                type="button"
-                onClick={() => move(1)}
-                className="icon-button"
-                aria-label="Próxima foto"
-              >
-                <ChevronRight className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </div>
+      {lightboxIndex !== null ? (
+        <GalleryLightbox
+          items={filtered}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+        />
       ) : null}
-    </div>
+    </>
   );
 }

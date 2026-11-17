@@ -1,43 +1,39 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Flame, Globe2, HeartHandshake, Quote } from "lucide-react";
-import { PastorCard } from "@/components/cards/PastorCard";
+import { PastorDuo } from "@/components/cards/PastorDuo";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { PageHero } from "@/components/ui/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import {
-  pastorMessage,
-  pastorPhotoNote,
-  pastors,
-} from "@/data/pastors";
+import { pastorStory } from "@/data/pastors";
 import { buildMetadata } from "@/lib/seo";
 
 const calling = [
   {
     icon: Globe2,
-    title: "Missionários",
+    title: "Origem",
     description:
-      "Antes de iniciar este ministério, os pastores Pedro e Simone serviam como missionários.",
+      "Naturais de Pedro II, Piauí, dedicam suas vidas a evangelizar no sertão do Maranhão e do Piauí.",
   },
   {
     icon: Flame,
-    title: "Chamados",
+    title: "Missão",
     description:
-      "Receberam o chamado para iniciar a Igreja Pentecostal Aliança com Deus e decidiram obedecer.",
+      "Fundaram a Igreja Aliança com Deus para pregar o Evangelho e anunciar Jesus Cristo.",
   },
   {
     icon: HeartHandshake,
-    title: "Servindo com fé",
+    title: "Esperança",
     description:
-      "Sem grandes recursos materiais, começaram confiando na oração, na fé e na provisão divina.",
+      "Trabalham para alcançar vidas, restaurar famílias e fortalecer a esperança pela Palavra de Deus.",
   },
 ];
 
 export const metadata: Metadata = buildMetadata({
   title: "Pastores Pedro e Simone",
   description:
-    "Conheça os pastores Pedro e Simone, missionários chamados por Deus para iniciar a Igreja Pentecostal Aliança com Deus em São Bernardo, Maranhão.",
+    "Conheça os pastores Pedro e Simone Pereira, naturais de Pedro II, Piauí, fundadores da Igreja Aliança com Deus e dedicados à evangelização no sertão do Maranhão e do Piauí.",
   path: "/pastores",
 });
 
@@ -52,35 +48,43 @@ export default function PastoresPage() {
             Pastores <span className="gold-text italic">Pedro e Simone</span>
           </>
         }
-        description="Chamados para servir, ensinar a Palavra e conduzir vidas a uma caminhada de fé em Jesus Cristo."
+        description="Conheça a história dos pastores Pedro e Simone Pereira, fundadores da Igreja Aliança com Deus."
       />
 
       <section className="section">
         <div className="container-page">
-          <div className="grid gap-6 md:grid-cols-2 lg:gap-8">
-            {pastors.map((pastor, index) => (
-              <PastorCard key={pastor.id} pastor={pastor} index={index} />
-            ))}
-          </div>
+          <PastorDuo />
 
           <Reveal delay={120}>
-            <div className="surface mt-8 flex flex-col gap-3 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+            <div className="surface mt-8 rounded-[1.5rem] p-7 sm:p-9 lg:p-10">
               <div className="flex items-start gap-3">
                 <Quote
                   className="mt-0.5 h-5 w-5 shrink-0 text-gold-500/65"
                   aria-hidden="true"
                 />
-                <p className="max-w-3xl font-display text-xl leading-snug text-cream sm:text-2xl">
-                  “{pastorMessage}”
-                </p>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold-400">
+                    Nossa história
+                  </p>
+                  <h2 className="mt-2 font-display text-2xl font-semibold text-cream sm:text-3xl">
+                    {pastorStory.title}
+                  </h2>
+                  <p className="mt-1 font-display text-lg italic text-gold-200 sm:text-xl">
+                    {pastorStory.subtitle}
+                  </p>
+                </div>
               </div>
-              <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.18em] text-gold-400">
-                Pastores Pedro e Simone
-              </span>
+
+              <div className="mt-6 space-y-4 text-sm leading-relaxed text-mist sm:text-base">
+                {pastorStory.paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+
+              <p className="mt-6 border-t border-white/[0.07] pt-5 font-display text-lg italic leading-snug text-sand">
+                {pastorStory.tagline}
+              </p>
             </div>
-            <p className="mt-4 text-center text-[11px] text-mist/50">
-              {pastorPhotoNote}
-            </p>
           </Reveal>
         </div>
       </section>

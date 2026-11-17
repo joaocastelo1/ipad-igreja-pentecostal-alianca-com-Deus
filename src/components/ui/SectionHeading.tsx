@@ -34,7 +34,7 @@ export function SectionHeading({
       <h2
         id={id}
         className={cn(
-          "display-title mt-5 max-w-3xl text-[clamp(2.5rem,5.4vw,4.5rem)] text-cream",
+          "display-title mt-5 max-w-3xl text-[clamp(2.25rem,9vw,4.5rem)] text-cream",
           titleClassName,
         )}
       >

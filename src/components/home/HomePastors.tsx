@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Quote } from "lucide-react";
-import { PastorCard } from "@/components/cards/PastorCard";
+import { PastorDuo } from "@/components/cards/PastorDuo";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { pastorMessage, pastorPhotoNote, pastors } from "@/data/pastors";
+import { pastorMessage, pastorPhotoNote } from "@/data/pastors";
 
 export function HomePastors() {
   return (
@@ -31,10 +31,8 @@ export function HomePastors() {
           />
         </Reveal>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:mt-16 lg:gap-8">
-          {pastors.map((pastor, index) => (
-            <PastorCard key={pastor.id} pastor={pastor} index={index} />
-          ))}
+        <div className="mt-12 lg:mt-16">
+          <PastorDuo />
         </div>
 
         <Reveal delay={140}>

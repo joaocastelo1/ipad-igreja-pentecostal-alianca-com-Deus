@@ -32,15 +32,8 @@ async function main() {
     );
   }
 
-  const logoMeta = await sharp(logoSource).metadata();
-  const logoSize = Math.min(logoMeta.width ?? 500, logoMeta.height ?? 500);
-  const circleMask = Buffer.from(
-    `<svg width="${logoSize}" height="${logoSize}"><circle cx="${logoSize / 2}" cy="${logoSize / 2}" r="${logoSize / 2 - 2}" fill="#fff"/></svg>`,
-  );
-
   const logoTransparent = await sharp(logoSource)
     .resize(1024, 1024, { fit: "cover" })
-    .composite([{ input: circleMask, blend: "dest-in" }])
     .png()
     .toBuffer();
 

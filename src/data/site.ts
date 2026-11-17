@@ -1,7 +1,10 @@
 import type { NavItem, SocialLink } from "@/types";
 
+const vercelUrl =
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
 const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (vercelUrl ? `https://${vercelUrl}` : "http://localhost:3000")
 ).replace(/\/$/, "");
 
 export const siteConfig = {
@@ -14,20 +17,20 @@ export const siteConfig = {
   stateCode: "MA",
   location: "São Bernardo — Maranhão",
   address: {
-    line1: "São Bernardo — Maranhão",
-    line2: "Endereço completo em breve",
+    line1: "Av. Custódia de Almeida Lima",
+    line2: "Centro — São Bernardo, Maranhão",
     postalCode: "65550-000",
   },
   map: {
     embedUrl:
-      "https://www.google.com/maps?q=S%C3%A3o%20Bernardo%2C%20Maranh%C3%A3o%2C%20Brasil&output=embed",
+      "https://www.google.com/maps?q=Av.%20Cust%C3%B3dia%20de%20Almeida%20Lima%2C%20Centro%2C%20S%C3%A3o%20Bernardo%20-%20MA&output=embed",
     directionsUrl:
-      "https://www.google.com/maps/dir/?api=1&destination=S%C3%A3o%20Bernardo%2C%20Maranh%C3%A3o%2C%20Brasil",
+      "https://www.google.com/maps/dir/?api=1&destination=Av.%20Cust%C3%B3dia%20de%20Almeida%20Lima%2C%20Centro%2C%20S%C3%A3o%20Bernardo%20-%20MA",
   },
   whatsapp: {
     // Substitua pelo número oficial com DDI + DDD, somente dígitos.
-    number: "5598999999999",
-    display: "(98) 99999-9999",
+    number: "5598984696169",
+    display: "(98) 98469-6169",
     defaultMessage:
       "Olá! Gostaria de conhecer a Igreja Pentecostal Aliança com Deus.",
     prayerMessage:

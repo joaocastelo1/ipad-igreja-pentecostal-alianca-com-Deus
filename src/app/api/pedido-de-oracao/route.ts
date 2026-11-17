@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { createPrayerRequest } from "@/lib/prayer-store";
+import { sendPrayerNotification } from "@/lib/notifications";
 import {
   checkRateLimit,
   getClientIp,
@@ -92,7 +93,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    await createPrayerRequest(parsed.data);
+    const created = await createPrayerRequest(parsed.data);
+    after(() => sendPrayerNotification(created));
   } catch (error) {
     console.error(
       "[pedido-de-oracao] Falha ao registrar pedido:",
@@ -111,7 +113,7 @@ export async function POST(request: Request) {
   return NextResponse.json(
     {
       message:
-        "Recebemos o seu pedido. Nossa equipe vai orar por você. Deus abençoe!",
+        "Seu pedido foi recebido! A Igreja Aliança com Deus estará em oração por você. Que Deus fortaleça sua fé e abençoe sua vida.",
     },
     { status: 201 },
   );

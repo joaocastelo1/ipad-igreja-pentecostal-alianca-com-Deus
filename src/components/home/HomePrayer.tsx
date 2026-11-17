@@ -6,6 +6,7 @@ import {
   PenLine,
   Send,
 } from "lucide-react";
+import { Parallax } from "@/components/ui/Parallax";
 import { Reveal } from "@/components/ui/Reveal";
 
 const steps = [
@@ -36,14 +37,23 @@ export function HomePrayer() {
               aria-hidden="true"
               className="bg-grid pointer-events-none absolute inset-0 opacity-40"
             />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-fire-500/10 blur-3xl"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-28 -left-16 h-72 w-72 rounded-full border border-gold-500/15"
-            />
+            <Parallax
+              speed={0.05}
+              className="pointer-events-none absolute inset-0"
+            >
+              <div
+                aria-hidden="true"
+                className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-fire-500/10 blur-3xl"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute -bottom-28 -left-16 h-72 w-72 rounded-full border border-gold-500/15"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute left-1/3 top-1/2 h-64 w-64 rounded-full bg-gold-500/[0.06] blur-3xl"
+              />
+            </Parallax>
 
             <div className="relative grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
               <div>

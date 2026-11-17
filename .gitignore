@@ -43,5 +43,7 @@ next-env.d.ts
 # dados locais de desenvolvimento
 /.data/
 
-# exemplo de variáveis de ambiente
+# exemplo de variï¿½veis de ambiente
 !.env.example
+.vercel
+.env*

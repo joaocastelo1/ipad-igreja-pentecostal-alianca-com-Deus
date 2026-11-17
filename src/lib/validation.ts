@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { PRAYER_CATEGORIES } from "@/lib/prayer";
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const prayerRequestSchema = z.object({
   name: z
@@ -16,21 +19,26 @@ export const prayerRequestSchema = z.object({
     )
     .optional()
     .default(""),
+  email: z
+    .string()
+    .trim()
+    .max(160, "O e-mail deve ter no máximo 160 caracteres.")
+    .refine(
+      (value) => value === "" || emailPattern.test(value),
+      "Informe um e-mail válido.",
+    )
+    .optional()
+    .default(""),
+  category: z.enum(PRAYER_CATEGORIES).optional().default("outros"),
   request: z
     .string()
     .trim()
     .min(10, "Compartilhe seu pedido com pelo menos 10 caracteres.")
     .max(2000, "O pedido deve ter no máximo 2000 caracteres."),
-  wantsContact: z.boolean().default(false),
+  consent: z.boolean().refine((value) => value === true, {
+    message: "É necessário autorizar o tratamento dos seus dados.",
+  }),
   website: z.string().max(200).optional().default(""),
-}).superRefine((data, ctx) => {
-  if (data.wantsContact && data.whatsapp.trim().length === 0) {
-    ctx.addIssue({
-      code: "custom",
-      path: ["whatsapp"],
-      message: "Informe um WhatsApp para que possamos entrar em contato.",
-    });
-  }
 });
 
 export type PrayerRequestInput = z.infer<typeof prayerRequestSchema>;

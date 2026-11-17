@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Quote } from "lucide-react";
+import { Parallax } from "@/components/ui/Parallax";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { history, timeline } from "@/data/about";
@@ -13,19 +14,41 @@ export function HomeAbout() {
       <div className="container-page">
         <div className="grid items-center gap-14 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 xl:gap-24">
           <Reveal direction="left" className="relative order-2 lg:order-1">
+            <Parallax
+              speed={0.05}
+              className="pointer-events-none absolute -inset-8 -z-10"
+            >
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 rounded-[2.4rem] bg-gold-500/[0.06] blur-3xl"
+              />
+            </Parallax>
             <div
               aria-hidden="true"
               className="absolute -inset-3 rounded-[1.8rem] border border-gold-500/15"
             />
             <div className="relative overflow-hidden rounded-[1.4rem] border border-gold-500/25 bg-navy-900">
-              <div className="relative aspect-[4/3]">
-                <Image
-                  src="/images/igreja/igreja-detalhe.webp"
-                  alt="Fachada da Igreja Pentecostal Aliança com Deus com a inscrição e o símbolo da IPAD"
-                  fill
-                  sizes="(max-width: 1024px) 92vw, 42vw"
-                  className="object-cover"
-                />
+              <div className="relative aspect-[4/3] min-h-[10.5rem] overflow-hidden sm:min-h-0">
+                <div className="absolute inset-x-0 -inset-y-[7%]">
+                  <Image
+                    src="/images/sede-ipad-2.jpeg"
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    sizes="(max-width: 1024px) 92vw, 42vw"
+                    className="scale-110 object-cover opacity-50 blur-2xl"
+                  />
+                  <Parallax speed={-0.06} className="absolute inset-0">
+                    <Image
+                      src="/images/sede-ipad-2.jpeg"
+                      alt="Pastor ministrando a Palavra para a congregação reunida na Sede IPAD"
+                      fill
+                      sizes="(max-width: 1024px) 92vw, 42vw"
+                      quality={90}
+                      className="object-cover"
+                    />
+                  </Parallax>
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-navy-950/10" />
               </div>
               <div className="absolute left-5 top-5 rounded-full border border-gold-500/30 bg-navy-950/70 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-gold-300 backdrop-blur-md">
@@ -33,7 +56,7 @@ export function HomeAbout() {
               </div>
             </div>
 
-            <figure className="surface relative -mt-8 ml-auto mr-4 max-w-xs rounded-2xl p-5 shadow-2xl sm:mr-8 sm:p-6">
+            <figure className="surface relative mt-4 ml-auto mr-4 max-w-xs rounded-2xl p-5 shadow-2xl sm:-mt-8 sm:mr-8 sm:p-6">
               <Quote
                 className="h-5 w-5 text-gold-500/70"
                 aria-hidden="true"

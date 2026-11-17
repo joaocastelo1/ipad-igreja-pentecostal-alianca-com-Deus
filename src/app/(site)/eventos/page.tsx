@@ -8,12 +8,13 @@ import {
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+import { EventCard } from "@/components/cards/EventCard";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHero } from "@/components/ui/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { eventNote } from "@/data/events";
+import { events, eventNote } from "@/data/events";
 import { services } from "@/data/services";
 import { buildMetadata } from "@/lib/seo";
 import { getWhatsAppLink } from "@/lib/whatsapp";
@@ -67,33 +68,41 @@ export default function EventosPage() {
             />
           </Reveal>
 
-          <Reveal delay={100} className="mt-10">
-            <EmptyState
-              icon={<CalendarPlus className="h-7 w-7" aria-hidden="true" />}
-              eyebrow="Em breve"
-              title="Nenhum evento divulgado no momento"
-              description={eventNote}
-              action={
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <a
-                    href={getWhatsAppLink(
-                      "Olá! Gostaria de saber sobre os próximos eventos da igreja.",
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                  >
-                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                    Perguntar no WhatsApp
-                  </a>
-                  <Link href="/cultos" className="btn btn-outline">
-                    Ver cultos semanais
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </Link>
-                </div>
-              }
-            />
-          </Reveal>
+          {events.length > 0 ? (
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {events.map((event, index) => (
+                <EventCard key={event.id} event={event} index={index} />
+              ))}
+            </div>
+          ) : (
+            <Reveal delay={100} className="mt-10">
+              <EmptyState
+                icon={<CalendarPlus className="h-7 w-7" aria-hidden="true" />}
+                eyebrow="Em breve"
+                title="Nenhum evento divulgado no momento"
+                description={eventNote}
+                action={
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <a
+                      href={getWhatsAppLink(
+                        "Olá! Gostaria de saber sobre os próximos eventos da igreja.",
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                      Perguntar no WhatsApp
+                    </a>
+                    <Link href="/cultos" className="btn btn-outline">
+                      Ver cultos semanais
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </div>
+                }
+              />
+            </Reveal>
+          )}
         </div>
       </section>
 

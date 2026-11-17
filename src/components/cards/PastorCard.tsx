@@ -14,13 +14,20 @@ export function PastorCard({ pastor, index }: PastorCardProps) {
       <div className="surface card-hover group relative h-full overflow-hidden rounded-[1.75rem]">
         <div className="portrait-grain relative aspect-[20/23] overflow-hidden bg-navy-900">
           {pastor.image ? (
-            <Image
-              src={pastor.image}
-              alt={`${pastor.role} ${pastor.name}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            />
+            <>
+              <Image
+                src={pastor.image}
+                alt={`${pastor.role} ${pastor.name}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={90}
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-navy-950 via-navy-950/55 to-transparent"
+              />
+            </>
           ) : (
             <div className="absolute inset-0">
               <div className="bg-grid absolute inset-0 opacity-60" />
