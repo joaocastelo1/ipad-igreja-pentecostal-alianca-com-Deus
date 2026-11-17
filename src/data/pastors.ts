@@ -4,7 +4,7 @@ export const pastors: Pastor[] = [
   {
     id: "pedro",
     name: "Pedro",
-    role: "Pastor",
+    role: "Pastor Presidente",
     monogram: "P",
     bio: "Missionário e pastor, natural de Pedro II, Piauí. Com a pastora Simone, fundou este ministério e dedica sua vida a evangelizar e anunciar o amor de Deus no sertão do Maranhão e do Piauí.",
     image: "/images/pastores/pastores-casal-hq.jpeg",
@@ -12,10 +12,29 @@ export const pastors: Pastor[] = [
   {
     id: "simone",
     name: "Simone",
-    role: "Pastora",
+    role: "Pastora Presidente",
     monogram: "S",
     bio: "Missionária e pastora, natural de Pedro II, Piauí. Ao lado do pastor Pedro, fundou a Igreja Aliança com Deus e serve com oração, fé e amor, cuidando de vidas e famílias.",
     image: "/images/pastores/pastores-casal-hq.jpeg",
+  },
+];
+
+export const coPastors: Pastor[] = [
+  {
+    id: "fernanda",
+    name: "Fernanda Nascimento",
+    role: "Co-pastora",
+    monogram: "F",
+    bio: "Missionária, cantora e compositora, a co-pastora Fernanda Nascimento serve ao lado do pastor Jonathan Rafael na IPAD Araioses, no Maranhão, anunciando a Palavra de Deus por meio do louvor, da adoração e do cuidado com vidas.",
+    image: "/images/ipad-araioses-3.jpeg",
+  },
+  {
+    id: "jonathan",
+    name: "Jonathan Rafael",
+    role: "Co-pastor",
+    monogram: "J",
+    bio: "Co-pastor da IPAD Araioses, no Maranhão, o pastor Jonathan Rafael, ao lado da co-pastora Fernanda Nascimento, dedica-se a pregar o Evangelho, ensinar a Palavra e cuidar das famílias da congregação.",
+    image: "/images/ipad-araioses-3.jpeg",
   },
 ];
 

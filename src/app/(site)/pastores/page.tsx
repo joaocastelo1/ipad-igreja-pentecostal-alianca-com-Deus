@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Flame, Globe2, HeartHandshake, Quote } from "lucide-react";
+import { PastorCard } from "@/components/cards/PastorCard";
 import { PastorDuo } from "@/components/cards/PastorDuo";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { PageHero } from "@/components/ui/PageHero";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { pastorStory } from "@/data/pastors";
+import { coPastors, pastorStory } from "@/data/pastors";
 import { buildMetadata } from "@/lib/seo";
 
 const calling = [
@@ -31,9 +32,9 @@ const calling = [
 ];
 
 export const metadata: Metadata = buildMetadata({
-  title: "Pastores Pedro e Simone",
+  title: "Pastores Presidentes Pedro e Simone",
   description:
-    "Conheça os pastores Pedro e Simone Pereira, naturais de Pedro II, Piauí, fundadores da Igreja Aliança com Deus e dedicados à evangelização no sertão do Maranhão e do Piauí.",
+    "Conheça os pastores presidentes Pedro e Simone Pereira, fundadores da Igreja Aliança com Deus, e os co-pastores Fernanda Nascimento e Jonathan Rafael, da IPAD Araioses no Maranhão.",
   path: "/pastores",
 });
 
@@ -45,10 +46,11 @@ export default function PastoresPage() {
         currentPage="Pastores"
         title={
           <>
-            Pastores <span className="gold-text italic">Pedro e Simone</span>
+            Pastores Presidentes{" "}
+            <span className="gold-text italic">Pedro e Simone</span>
           </>
         }
-        description="Conheça a história dos pastores Pedro e Simone Pereira, fundadores da Igreja Aliança com Deus."
+        description="Conheça a história dos pastores presidentes Pedro e Simone Pereira, fundadores da Igreja Aliança com Deus."
       />
 
       <section className="section">
@@ -90,6 +92,35 @@ export default function PastoresPage() {
       </section>
 
       <section className="section relative overflow-hidden border-y border-white/5 bg-navy-900/25">
+        <div
+          aria-hidden="true"
+          className="bg-grid pointer-events-none absolute inset-0 opacity-30"
+        />
+        <div className="container-page relative">
+          <Reveal>
+            <SectionHeading
+              align="center"
+              eyebrow="Co-pastores"
+              title={
+                <>
+                  Liderança em{" "}
+                  <span className="gold-text italic">Araioses, Maranhão</span>
+                </>
+              }
+              description="Conheça os co-pastores Fernanda Nascimento, missionária, cantora e compositora, e Jonathan Rafael, que servem à frente da IPAD Araioses, no Maranhão."
+              className="mx-auto"
+            />
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {coPastors.map((pastor, index) => (
+              <PastorCard key={pastor.id} pastor={pastor} index={index} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section relative overflow-hidden border-b border-white/5 bg-navy-950/40">
         <div
           aria-hidden="true"
           className="bg-grid pointer-events-none absolute inset-0 opacity-30"

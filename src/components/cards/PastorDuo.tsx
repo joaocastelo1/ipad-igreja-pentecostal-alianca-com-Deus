@@ -25,7 +25,7 @@ export function PastorDuo() {
                 <Parallax speed={-0.05} className="absolute inset-0">
                   <Image
                     src={mainImage}
-                    alt="Pastores Pedro e Simone"
+                    alt="Pastores Presidentes Pedro e Simone"
                     fill
                     quality={90}
                     sizes="(max-width: 1024px) 100vw, 45vw"
@@ -47,7 +47,7 @@ export function PastorDuo() {
             )}
 
             <div className="absolute left-5 top-5 rounded-full border border-gold-500/25 bg-navy-950/70 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-gold-300 backdrop-blur-md">
-              Pastores
+              Pastores Presidentes
             </div>
             <Sparkles
               className="absolute right-5 top-5 h-4 w-4 text-gold-500/50"
@@ -57,7 +57,7 @@ export function PastorDuo() {
 
           <div className="relative flex flex-col justify-center p-6 sm:p-8 lg:p-10">
             <h2 className="font-display text-3xl font-semibold text-cream sm:text-4xl">
-              Pastores{" "}
+              Pastores Presidentes{" "}
               <span className="gold-text italic">Pedro e Simone</span>
             </h2>
 

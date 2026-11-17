@@ -383,12 +383,12 @@ export function GalleryWindows() {
 
   return (
     <>
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {galleryAlbums.map((album, albumIndex) => (
           <div
             key={album.id}
             className={cn(
-              albumIndex < 2 ? "xl:col-span-3" : "xl:col-span-2",
+              albumIndex < 2 ? "xl:col-span-2" : "xl:col-span-1",
             )}
           >
             <AlbumWindow

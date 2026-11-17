@@ -92,6 +92,7 @@ export type Testimonial = {
 
 export type GalleryCategory =
   | "Sede IPAD"
+  | "IPAD Araioses"
   | "Congregação Madeiro"
   | "Congregação Nova Esperança"
   | "Congregação Vila São José"

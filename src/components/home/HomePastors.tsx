@@ -23,7 +23,8 @@ export function HomePastors() {
             eyebrow="Liderança"
             title={
               <>
-                Pastores <span className="gold-text italic">Pedro e Simone</span>
+                Pastores Presidentes{" "}
+                <span className="gold-text italic">Pedro e Simone</span>
               </>
             }
             description="Chamados para servir, ensinar a Palavra e conduzir vidas a uma caminhada de fé em Jesus Cristo."
@@ -50,7 +51,7 @@ export function HomePastors() {
                 “{pastorMessage}”
               </blockquote>
               <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.22em] text-gold-400">
-                Pastores Pedro e Simone
+                Pastores Presidentes Pedro e Simone
               </p>
             </div>
             <div className="flex flex-col items-start gap-4 lg:items-end">

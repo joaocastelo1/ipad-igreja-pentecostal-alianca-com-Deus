@@ -14,7 +14,7 @@ import { getWhatsAppLink } from "@/lib/whatsapp";
 export const metadata: Metadata = buildMetadata({
   title: "Galeria",
   description:
-    "Momentos de fé, comunhão e celebração da Igreja Pentecostal Aliança com Deus em São Bernardo, Maranhão. Veja fotos e vídeos da Sede IPAD e das congregações Madeiro, Nova Esperança e Vila São José.",
+    "Momentos de fé, comunhão e celebração da Igreja Pentecostal Aliança com Deus em São Bernardo e em Araioses, Maranhão. Veja fotos e vídeos da Sede IPAD, da IPAD Araioses e das congregações Madeiro, Nova Esperança e Vila São José.",
   path: "/galeria",
 });
 
@@ -30,7 +30,7 @@ export default function GaleriaPage() {
             <span className="gold-text italic">a nossa história</span>
           </>
         }
-        description="Cada foto é um registro da graça de Deus entre nós: a Sede IPAD, as congregações e os eventos e festas que reúnem a nossa família."
+        description="Cada foto é um registro da graça de Deus entre nós: a Sede IPAD, a IPAD Araioses, as congregações e os eventos e festas que reúnem a nossa família."
       >
         <div className="inline-flex items-center gap-2.5 rounded-full border border-gold-500/20 bg-gold-500/[0.05] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-300">
           <Camera className="h-3.5 w-3.5" aria-hidden="true" />
@@ -49,7 +49,7 @@ export default function GaleriaPage() {
                   <span className="gold-text italic">cada janela</span>
                 </>
               }
-              description="Sede IPAD, Madeiro, Nova Esperança e Vila São José, além dos nossos eventos e festas. Cada janela gira sozinha: passe o mouse, toque ou use as setas para explorar."
+              description="Sede IPAD, IPAD Araioses, Madeiro, Nova Esperança e Vila São José, além dos nossos eventos e festas. Cada janela gira sozinha: passe o mouse, toque ou use as setas para explorar."
             />
           </Reveal>
 
