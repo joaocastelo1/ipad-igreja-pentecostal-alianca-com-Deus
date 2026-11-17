@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { BackButton } from "@/components/ui/BackButton";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 
@@ -46,24 +47,27 @@ export function PageHero({
       />
       <div className="container-page relative">
         <Reveal>
-          <nav aria-label="Trilha de navegação" className="mb-8">
-            <ol className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist/70">
-              <li>
-                <Link
-                  href="/"
-                  className="transition-colors hover:text-gold-300"
-                >
-                  Início
-                </Link>
-              </li>
-              <li aria-hidden="true">
-                <ChevronRight className="h-3 w-3" />
-              </li>
-              <li aria-current="page" className="text-gold-300">
-                {currentPage}
-              </li>
-            </ol>
-          </nav>
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            <BackButton />
+            <nav aria-label="Trilha de navegação">
+              <ol className="flex flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-mist/70">
+                <li>
+                  <Link
+                    href="/"
+                    className="transition-colors hover:text-gold-300"
+                  >
+                    Início
+                  </Link>
+                </li>
+                <li aria-hidden="true">
+                  <ChevronRight className="h-3 w-3" />
+                </li>
+                <li aria-current="page" className="text-gold-300">
+                  {currentPage}
+                </li>
+              </ol>
+            </nav>
+          </div>
           <span className="eyebrow">{eyebrow}</span>
           <h1 className="display-title mt-5 max-w-4xl text-[clamp(2.4rem,8.5vw,5.25rem)] text-cream">
             {title}

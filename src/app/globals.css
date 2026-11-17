@@ -40,6 +40,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
   -webkit-tap-highlight-color: transparent;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -61,6 +63,11 @@ body {
   font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+
+#conteudo {
   overflow-x: clip;
 }
 

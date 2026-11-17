@@ -27,6 +27,12 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activePathname, setActivePathname] = useState(pathname);
+
+  if (activePathname !== pathname) {
+    setActivePathname(pathname);
+    setOpen(false);
+  }
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -187,7 +193,7 @@ export function Header() {
 
       <div
         className={cn(
-          "fixed inset-0 z-[60] xl:hidden",
+          "fixed inset-0 z-[60] overflow-hidden xl:hidden",
           open ? "pointer-events-auto" : "pointer-events-none",
         )}
         aria-hidden={!open}
@@ -210,7 +216,7 @@ export function Header() {
           aria-modal="true"
           aria-label="Menu de navegação"
           className={cn(
-            "absolute right-0 top-0 flex h-[100dvh] w-[min(92vw,25rem)] flex-col overflow-y-auto border-l border-gold-500/20 bg-navy-900 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)]",
+            "absolute right-0 top-0 flex h-[100dvh] w-[min(92vw,25rem)] flex-col overflow-y-auto overscroll-contain border-l border-gold-500/20 bg-navy-900 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)]",
             open ? "translate-x-0" : "translate-x-full",
           )}
         >

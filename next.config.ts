@@ -18,6 +18,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  devIndicators: false,
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85, 90],

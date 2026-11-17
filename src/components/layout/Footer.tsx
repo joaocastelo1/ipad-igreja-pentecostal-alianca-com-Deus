@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, LockKeyhole, MapPin, MessageCircle } from "lucide-react";
+import { BackToTopLink } from "@/components/ui/BackToTopLink";
 import { Logo } from "@/components/ui/Logo";
 import { SocialLinks } from "@/components/ui/SocialLinks";
 import { services } from "@/data/services";
@@ -139,6 +140,7 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <BackToTopLink />
             <Link
               href="/politica-de-privacidade"
               className="transition-colors hover:text-gold-300"
