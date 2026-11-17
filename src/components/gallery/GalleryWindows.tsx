@@ -80,7 +80,7 @@ function AlbumMedia({
         controls
         preload="metadata"
         aria-label={item.alt}
-        className="h-full w-full object-cover"
+        className="h-full w-full bg-black object-contain"
       />
     ) : (
       <Image
@@ -234,6 +234,11 @@ function AlbumWindow({
           }
         }}
         onTouchStart={(event) => {
+          if ((event.target as HTMLElement).closest("video")) {
+            touchStart.current = null;
+            return;
+          }
+
           const touch = event.touches[0];
           touchStart.current = { x: touch.clientX, y: touch.clientY };
         }}

@@ -219,6 +219,11 @@ export function Gallery() {
             onFocus={() => setPaused(true)}
             onBlur={() => setPaused(false)}
             onTouchStart={(event) => {
+              if ((event.target as HTMLElement).closest("video")) {
+                touchStart.current = null;
+                return;
+              }
+
               const touch = event.touches[0];
               touchStart.current = { x: touch.clientX, y: touch.clientY };
             }}
@@ -411,7 +416,10 @@ export function Gallery() {
           items={filtered}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
-          onNavigate={setLightboxIndex}
+          onNavigate={(nextIndex) => {
+            setLightboxIndex(nextIndex);
+            setIndex(nextIndex);
+          }}
         />
       ) : null}
     </>

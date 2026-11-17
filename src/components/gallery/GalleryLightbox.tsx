@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type {
   MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
@@ -69,6 +70,7 @@ export function GalleryLightbox({
     moved: false,
   });
   const thumbRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const thumbStripRef = useRef<HTMLDivElement>(null);
   const total = items.length;
   const item = items[index];
   const isVideo = item?.mediaType === "video";
@@ -175,11 +177,15 @@ export function GalleryLightbox({
   );
 
   useEffect(() => {
-    thumbRefs.current[index]?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
+    const strip = thumbStripRef.current;
+    const thumb = thumbRefs.current[index];
+
+    if (!strip || !thumb) {
+      return;
+    }
+
+    const left = thumb.offsetLeft - (strip.clientWidth - thumb.clientWidth) / 2;
+    strip.scrollTo({ left, behavior: "smooth" });
   }, [index]);
 
   useEffect(() => {
@@ -188,22 +194,48 @@ export function GalleryLightbox({
         ? document.activeElement
         : null;
 
-    const previousOverflow = document.body.style.overflow;
-    const previousPadding = document.body.style.paddingRight;
-    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    const body = document.body;
+    const root = document.documentElement;
+    const scrollY = window.scrollY;
+    const scrollbar = window.innerWidth - root.clientWidth;
+    const previous = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      paddingRight: body.style.paddingRight,
+      scrollBehavior: root.style.scrollBehavior,
+    };
 
-    document.body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
     if (scrollbar > 0) {
-      document.body.style.paddingRight = `${scrollbar}px`;
+      body.style.paddingRight = `${scrollbar}px`;
     }
 
     const timer = window.setTimeout(() => closeRef.current?.focus(), 30);
 
     return () => {
       window.clearTimeout(timer);
-      document.body.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPadding;
-      restoreFocus.current?.focus();
+      body.style.position = previous.position;
+      body.style.top = previous.top;
+      body.style.left = previous.left;
+      body.style.right = previous.right;
+      body.style.width = previous.width;
+      body.style.overflow = previous.overflow;
+      body.style.paddingRight = previous.paddingRight;
+
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, scrollY);
+      root.style.scrollBehavior = previous.scrollBehavior;
+
+      restoreFocus.current?.focus({ preventScroll: true });
     };
   }, []);
 
@@ -303,7 +335,7 @@ export function GalleryLightbox({
     return () => element.removeEventListener("wheel", onWheel);
   }, [applyScale, isVideo]);
 
-  if (!item) {
+  if (!item || typeof document === "undefined") {
     return null;
   }
 
@@ -514,13 +546,13 @@ export function GalleryLightbox({
       ? "Arraste para mover · Pinça para ajustar o zoom"
       : "Arraste, use as setas · Duplo toque para ampliar";
 
-  return (
+  return createPortal(
     <div
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`Foto ampliada: ${item.caption}`}
-      className="fixed inset-0 z-[100] flex flex-col overscroll-contain bg-navy-950/96 backdrop-blur-xl"
+      aria-label={`${isVideo ? "Vídeo" : "Foto"} ampliada: ${item.caption}`}
+      className="fixed inset-x-0 top-0 z-[100] flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-hidden overscroll-contain bg-navy-950/96 backdrop-blur-xl"
     >
       <div
         aria-hidden="true"
@@ -573,7 +605,7 @@ export function GalleryLightbox({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            aria-label="Fechar foto ampliada"
+            aria-label="Fechar"
             className="icon-button bg-navy-950/70"
           >
             <X className="h-5 w-5" aria-hidden="true" />
@@ -581,15 +613,17 @@ export function GalleryLightbox({
         </div>
       </header>
 
-      <div className="relative flex min-h-0 flex-1 items-center justify-center px-2 sm:px-20">
-        <button
-          type="button"
-          onClick={() => go(-1)}
-          aria-label="Foto anterior"
-          className="icon-button absolute left-1.5 top-1/2 z-30 h-11 w-11 -translate-y-1/2 bg-navy-950/80 sm:left-6 sm:h-12 sm:w-12"
-        >
-          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-        </button>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-2 sm:px-20">
+        {total > 1 ? (
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            aria-label={isVideo ? "Vídeo anterior" : "Foto anterior"}
+            className="absolute left-2 top-1/2 z-40 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-gold-400/40 bg-navy-950/85 text-gold-100 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.95)] backdrop-blur-md transition active:scale-95 sm:left-6 sm:h-12 sm:w-12"
+          >
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+          </button>
+        ) : null}
 
         <div
           ref={viewportRef}
@@ -623,19 +657,19 @@ export function GalleryLightbox({
             }}
           >
             {isVideo ? (
-              <video
-                key={item.id}
-                src={item.src}
-                poster={item.poster}
-                controls
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                aria-label={item.alt}
-                className="max-h-full max-w-full rounded-xl border border-white/10 bg-black object-contain shadow-[0_35px_100px_-40px_rgba(0,0,0,1)]"
-              />
+              <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+                <video
+                  key={item.id}
+                  src={item.src}
+                  poster={item.poster}
+                  controls
+                  controlsList="nodownload"
+                  playsInline
+                  preload="metadata"
+                  aria-label={item.alt}
+                  className="max-h-full max-w-full rounded-xl border border-white/10 bg-black object-contain shadow-[0_35px_100px_-40px_rgba(0,0,0,1)]"
+                />
+              </div>
             ) : (
               <div
                 className="relative h-full w-full overflow-hidden"
@@ -662,14 +696,16 @@ export function GalleryLightbox({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => go(1)}
-          aria-label="Próxima foto"
-          className="icon-button absolute right-1.5 top-1/2 z-30 h-11 w-11 -translate-y-1/2 bg-navy-950/80 sm:right-6 sm:h-12 sm:w-12"
-        >
-          <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-        </button>
+        {total > 1 ? (
+          <button
+            type="button"
+            onClick={() => go(1)}
+            aria-label={isVideo ? "Próximo vídeo" : "Próxima foto"}
+            className="absolute right-2 top-1/2 z-40 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-gold-400/40 bg-navy-950/85 text-gold-100 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.95)] backdrop-blur-md transition active:scale-95 sm:right-6 sm:h-12 sm:w-12"
+          >
+            <ChevronRight className="h-6 w-6" aria-hidden="true" />
+          </button>
+        ) : null}
 
         {!isVideo && scale > 1 ? (
           <div className="pointer-events-none absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-navy-950/80 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sand backdrop-blur-md">
@@ -711,6 +747,7 @@ export function GalleryLightbox({
           </p>
 
           <div
+            ref={thumbStripRef}
             className="no-scrollbar flex snap-x snap-proximity gap-2 overflow-x-auto pb-1"
             aria-label="Miniaturas da galeria ampliada"
           >
@@ -752,6 +789,7 @@ export function GalleryLightbox({
           </div>
         </div>
       </footer>
-    </div>
+    </div>,
+    document.body,
   );
 }
