@@ -38,7 +38,7 @@ export const siteConfig = {
   },
   email: "",
   social: {
-    instagram: "https://www.instagram.com/i.p._alianca_com_deus",
+    instagram: "https://www.instagram.com/_ministerio_ipad_",
     facebook: "",
     youtube: "",
   },

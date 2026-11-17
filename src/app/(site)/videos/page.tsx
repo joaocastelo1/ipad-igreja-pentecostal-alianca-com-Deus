@@ -77,7 +77,7 @@ export default function VideosPage() {
               action={
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <a
-                    href="https://www.instagram.com/i.p._alianca_com_deus"
+                    href="https://www.instagram.com/_ministerio_ipad_"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary"

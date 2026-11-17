@@ -171,7 +171,7 @@ export default function EventosPage() {
         description="As novidades, fotos e programações especiais também são compartilhadas nas nossas redes sociais."
       >
         <a
-          href="https://www.instagram.com/i.p._alianca_com_deus"
+          href="https://www.instagram.com/_ministerio_ipad_"
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-primary"
