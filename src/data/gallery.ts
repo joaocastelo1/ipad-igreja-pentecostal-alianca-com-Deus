@@ -102,6 +102,15 @@ export const galleryItems: GalleryItem[] = [
     height: 960,
   },
   {
+    id: "araioses-co-pastores",
+    src: "/images/ipad-araioses-3.jpeg",
+    alt: "Co-pastores Fernanda Nascimento e Jonathan Rafael segurando a bandeira da IPAD em Araioses",
+    caption: "Co-pastores Jonathan e Fernanda",
+    category: "IPAD Araioses",
+    width: 1278,
+    height: 1280,
+  },
+  {
     id: "araioses-culto",
     src: "/images/ipad-araioses-1.jpeg",
     alt: "Congregação da IPAD Araioses reunida em culto, com membros de pé em adoração",
@@ -118,15 +127,6 @@ export const galleryItems: GalleryItem[] = [
     category: "IPAD Araioses",
     width: 1280,
     height: 842,
-  },
-  {
-    id: "araioses-co-pastores",
-    src: "/images/ipad-araioses-3.jpeg",
-    alt: "Co-pastores Fernanda Nascimento e Jonathan Rafael segurando a bandeira da IPAD em Araioses",
-    caption: "Co-pastores Jonathan e Fernanda",
-    category: "IPAD Araioses",
-    width: 1278,
-    height: 1280,
   },
   {
     id: "araioses-criancas",
