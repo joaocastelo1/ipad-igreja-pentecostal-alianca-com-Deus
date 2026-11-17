@@ -10,7 +10,6 @@ import {
   Maximize2,
   Pause,
   Play,
-  Video,
 } from "lucide-react";
 import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 import { galleryCategories, galleryItems, galleryNote } from "@/data/gallery";
@@ -25,38 +24,33 @@ const AUTOPLAY_DELAY = 5500;
 
 function GalleryMedia({
   item,
-  active,
   priority,
-  reducedMotion,
 }: {
   item: GalleryItem;
-  active: boolean;
   priority: boolean;
-  reducedMotion: boolean;
 }) {
   if (item.mediaType === "video") {
-    return active ? (
-      <video
-        src={item.src}
-        poster={item.poster}
-        muted
-        loop
-        autoPlay={!reducedMotion}
-        playsInline
-        controls
-        preload="metadata"
-        aria-label={item.alt}
-        className="absolute inset-0 h-full w-full object-contain"
-      />
-    ) : (
-      <Image
-        src={item.poster ?? "/images/og/og-image.png"}
-        alt=""
-        aria-hidden="true"
-        fill
-        sizes="(max-width: 1024px) 92vw, 64rem"
-        className="object-contain"
-      />
+    return (
+      <>
+        <Image
+          src={item.poster ?? "/images/og/og-image.png"}
+          alt={item.alt}
+          fill
+          sizes="(max-width: 1024px) 92vw, 64rem"
+          quality={90}
+          priority={priority}
+          className="object-contain"
+        />
+        <span className="pointer-events-none absolute inset-0 grid place-items-center">
+          <span className="grid h-16 w-16 place-items-center rounded-full border border-white/30 bg-navy-950/70 text-gold-200 shadow-2xl backdrop-blur-md">
+            <Play
+              className="ml-1 h-7 w-7"
+              fill="currentColor"
+              aria-hidden="true"
+            />
+          </span>
+        </span>
+      </>
     );
   }
 
@@ -269,18 +263,25 @@ export function Gallery() {
                     <span className="absolute inset-0 bg-navy-950/40" />
                     <GalleryMedia
                       item={item}
-                      active={itemIndex === index}
                       priority={itemIndex === 0}
-                      reducedMotion={reducedMotion}
                     />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/85 via-navy-950/5 to-transparent" />
 
-                    {itemIndex === index && item.mediaType !== "video" ? (
+                    {itemIndex === index ? (
                       <button
                         type="button"
                         onClick={() => setLightboxIndex(itemIndex)}
-                        aria-label={`Ampliar foto: ${item.caption}`}
-                        className="absolute inset-0 cursor-zoom-in"
+                        aria-label={
+                          item.mediaType === "video"
+                            ? `Assistir vídeo: ${item.caption}`
+                            : `Ampliar foto: ${item.caption}`
+                        }
+                        className={cn(
+                          "absolute inset-0",
+                          item.mediaType === "video"
+                            ? "cursor-pointer"
+                            : "cursor-zoom-in",
+                        )}
                       />
                     ) : null}
 
@@ -302,16 +303,6 @@ export function Gallery() {
                           {item.caption}
                         </span>
                       </span>
-                      {item.mediaType === "video" && itemIndex === index ? (
-                        <button
-                          type="button"
-                          onClick={() => setLightboxIndex(itemIndex)}
-                          aria-label={`Ampliar vídeo: ${item.caption}`}
-                          className="pointer-events-auto grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/20 bg-navy-950/70 text-gold-200 backdrop-blur-md transition-colors hover:bg-gold-500/20"
-                        >
-                          <Video className="h-4 w-4" aria-hidden="true" />
-                        </button>
-                      ) : null}
                     </span>
                   </div>
                 </div>

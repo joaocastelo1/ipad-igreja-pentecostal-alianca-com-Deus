@@ -61,36 +61,32 @@ function AlbumMedia({
   item,
   active,
   priority,
-  reducedMotion,
 }: {
   item: GalleryItem;
   active: boolean;
   priority: boolean;
-  reducedMotion: boolean;
 }) {
   if (item.mediaType === "video") {
-    return active ? (
-      <video
-        src={item.src}
-        poster={item.poster}
-        muted
-        loop
-        autoPlay={!reducedMotion}
-        playsInline
-        controls
-        preload="metadata"
-        aria-label={item.alt}
-        className="h-full w-full bg-black object-contain"
-      />
-    ) : (
-      <Image
-        src={item.poster ?? "/images/og/og-image.png"}
-        alt=""
-        aria-hidden="true"
-        fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 40rem"
-        className="object-cover"
-      />
+    return (
+      <>
+        <Image
+          src={item.poster ?? "/images/og/og-image.png"}
+          alt={item.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 40rem"
+          priority={priority}
+          className="object-cover"
+        />
+        <span className="pointer-events-none absolute inset-0 grid place-items-center">
+          <span className="grid h-14 w-14 place-items-center rounded-full border border-white/30 bg-navy-950/70 text-gold-200 shadow-2xl backdrop-blur-md">
+            <Play
+              className="ml-0.5 h-6 w-6"
+              fill="currentColor"
+              aria-hidden="true"
+            />
+          </span>
+        </span>
+      </>
     );
   }
 
@@ -275,16 +271,24 @@ function AlbumWindow({
                   item={item}
                   active={isActive}
                   priority={albumIndex === 0 && itemIndex === 0}
-                  reducedMotion={reducedMotion}
                 />
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/5 to-transparent" />
 
-                {isActive && item.mediaType !== "video" ? (
+                {isActive ? (
                   <button
                     type="button"
                     onClick={() => onOpen(itemIndex)}
-                    aria-label={`Ampliar foto: ${item.caption}`}
-                    className="absolute inset-0 cursor-zoom-in"
+                    aria-label={
+                      item.mediaType === "video"
+                        ? `Assistir vídeo: ${item.caption}`
+                        : `Ampliar foto: ${item.caption}`
+                    }
+                    className={cn(
+                      "absolute inset-0",
+                      item.mediaType === "video"
+                        ? "cursor-pointer"
+                        : "cursor-zoom-in",
+                    )}
                   />
                 ) : null}
 
@@ -306,16 +310,6 @@ function AlbumWindow({
                       {item.caption}
                     </span>
                   </span>
-                  {item.mediaType === "video" && isActive ? (
-                    <button
-                      type="button"
-                      onClick={() => onOpen(itemIndex)}
-                      aria-label={`Ampliar vídeo: ${item.caption}`}
-                      className="pointer-events-auto grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/20 bg-navy-950/70 text-gold-200 backdrop-blur-md transition-colors hover:bg-gold-500/20"
-                    >
-                      <Video className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                  ) : null}
                 </span>
               </div>
             );

@@ -32,6 +32,7 @@ const MAX_SCALE = 4;
 const DOUBLE_TAP_SCALE = 2.5;
 const SWIPE_NAVIGATE = 60;
 const SWIPE_CLOSE = 110;
+const TAP_SLOP = 10;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -53,9 +54,7 @@ export function GalleryLightbox({
   const restoreFocus = useRef<HTMLElement | null>(null);
   const scaleRef = useRef(1);
   const offsetRef = useRef<Point>({ x: 0, y: 0 });
-  const lastTap = useRef(0);
-  const suppressClick = useRef(false);
-  const lastPointerType = useRef("mouse");
+  const suppressClick = useRef(false);  const lastPointerType = useRef("mouse");
   const pointers = useRef(new Map<number, Point>());
   const gesture = useRef({
     mode: "none" as "none" | "pan" | "pinch" | "swipe",
@@ -453,7 +452,7 @@ export function GalleryLightbox({
       const deltaX = event.clientX - active.startX;
       const deltaY = event.clientY - active.startY;
 
-      if (Math.abs(deltaX) > 4 || Math.abs(deltaY) > 4) {
+      if (Math.abs(deltaX) > TAP_SLOP || Math.abs(deltaY) > TAP_SLOP) {
         active.moved = true;
       }
 
@@ -505,14 +504,7 @@ export function GalleryLightbox({
       setDrag({ x: 0, y: 0 });
 
       if (!active.moved && event.pointerType !== "mouse") {
-        const now = Date.now();
-
-        if (now - lastTap.current < 300) {
-          lastTap.current = 0;
-          toggleZoom({ x: event.clientX, y: event.clientY });
-        } else {
-          lastTap.current = now;
-        }
+        toggleZoom({ x: event.clientX, y: event.clientY });
       }
 
       return;
@@ -543,8 +535,8 @@ export function GalleryLightbox({
   const instruction = isVideo
     ? "Use os controles do vídeo · Setas para navegar"
     : scale > 1
-      ? "Arraste para mover · Pinça para ajustar o zoom"
-      : "Arraste, use as setas · Duplo toque para ampliar";
+      ? "Arraste para mover · Toque para reduzir"
+      : "Toque para ampliar · Pinça para ajustar · Arraste para navegar";
 
   return createPortal(
     <div
@@ -552,7 +544,8 @@ export function GalleryLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`${isVideo ? "Vídeo" : "Foto"} ampliada: ${item.caption}`}
-      className="fixed inset-x-0 top-0 z-[100] flex h-[100dvh] max-h-[100dvh] w-full flex-col overflow-hidden overscroll-contain bg-navy-950/96 backdrop-blur-xl"
+      style={{ height: "100dvh", maxHeight: "100dvh" }}
+      className="fixed inset-x-0 top-0 z-[100] flex h-screen w-full flex-col overflow-hidden overscroll-none bg-navy-950/96 backdrop-blur-xl"
     >
       <div
         aria-hidden="true"
@@ -625,52 +618,51 @@ export function GalleryLightbox({
           </button>
         ) : null}
 
-        <div
-          ref={viewportRef}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endGesture}
-          onPointerCancel={endGesture}
-          onClick={onImageClick}
-          className={cn(
-            "relative flex h-full w-full touch-none select-none items-center justify-center py-2",
-            isVideo && "touch-auto",
-            scale > 1 ? "cursor-grab" : "cursor-zoom-in",
-            dragging && "cursor-grabbing",
-          )}
-          style={{ transition: dragging ? "none" : undefined }}
-        >
+        {isVideo ? (
+          <div className="relative z-10 flex h-full w-full items-center justify-center">
+            <video
+              key={item.id}
+              src={item.src}
+              poster={item.poster}
+              controls
+              controlsList="nodownload"
+              playsInline
+              preload="metadata"
+              aria-label={item.alt}
+              className="h-full w-full rounded-xl border border-white/10 bg-black object-contain shadow-[0_35px_100px_-40px_rgba(0,0,0,1)]"
+            />
+          </div>
+        ) : (
           <div
-            className="relative flex h-full w-full items-center justify-center"
-            style={{
-              transform:
-                scale > 1
-                  ? `translate3d(${offset.x}px, ${offset.y}px, 0)`
-                  : `translate3d(${drag.x * 0.35}px, ${drag.y}px, 0)`,
-              opacity:
-                scale === 1 && drag.y > 0
-                  ? clamp(1 - drag.y / 420, 0.55, 1)
-                  : 1,
-              transition: dragging
-                ? "none"
-                : "transform 0.35s cubic-bezier(0.2,0.7,0.2,1), opacity 0.3s ease",
-            }}
+            ref={viewportRef}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endGesture}
+            onPointerCancel={endGesture}
+            onClick={onImageClick}
+            className={cn(
+              "relative flex h-full w-full touch-none select-none items-center justify-center py-2",
+              scale > 1 ? "cursor-grab" : "cursor-zoom-in",
+              dragging && "cursor-grabbing",
+            )}
+            style={{ transition: dragging ? "none" : undefined }}
           >
-            {isVideo ? (
-              <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
-                <video
-                  key={item.id}
-                  src={item.src}
-                  poster={item.poster}
-                  controls
-                  controlsList="nodownload"
-                  playsInline
-                  preload="metadata"
-                  aria-label={item.alt}
-                  className="max-h-full max-w-full rounded-xl border border-white/10 bg-black object-contain shadow-[0_35px_100px_-40px_rgba(0,0,0,1)]"
-                />
-              </div>
-            ) : (
+            <div
+              className="relative flex h-full w-full items-center justify-center"
+              style={{
+                transform:
+                  scale > 1
+                    ? `translate3d(${offset.x}px, ${offset.y}px, 0)`
+                    : `translate3d(${drag.x * 0.35}px, ${drag.y}px, 0)`,
+                opacity:
+                  scale === 1 && drag.y > 0
+                    ? clamp(1 - drag.y / 420, 0.55, 1)
+                    : 1,
+                transition: dragging
+                  ? "none"
+                  : "transform 0.35s cubic-bezier(0.2,0.7,0.2,1), opacity 0.3s ease",
+              }}
+            >
               <div
                 className="relative h-full w-full overflow-hidden"
                 style={{
@@ -692,9 +684,9 @@ export function GalleryLightbox({
                   className="select-none object-contain"
                 />
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {total > 1 ? (
           <button
@@ -707,15 +699,15 @@ export function GalleryLightbox({
           </button>
         ) : null}
 
-        {!isVideo && scale > 1 ? (
-          <div className="pointer-events-none absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-navy-950/80 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sand backdrop-blur-md">
+        {!isVideo ? (
+          <div className="pointer-events-none absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full border border-white/15 bg-navy-950/85 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sand backdrop-blur-md sm:bottom-3">
             <button
               type="button"
               onClick={() => changeBy(-0.5)}
               aria-label="Diminuir zoom"
-              className="pointer-events-auto grid h-7 w-7 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
+              className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
             >
-              <ZoomOut className="h-3.5 w-3.5" aria-hidden="true" />
+              <ZoomOut className="h-4 w-4" aria-hidden="true" />
             </button>
             <span aria-live="polite" className="min-w-10 text-center">
               {zoomPercent}%
@@ -724,17 +716,17 @@ export function GalleryLightbox({
               type="button"
               onClick={() => changeBy(0.5)}
               aria-label="Aumentar zoom"
-              className="pointer-events-auto grid h-7 w-7 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
+              className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
             >
-              <ZoomIn className="h-3.5 w-3.5" aria-hidden="true" />
+              <ZoomIn className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
               type="button"
               onClick={resetView}
               aria-label="Restaurar zoom"
-              className="pointer-events-auto grid h-7 w-7 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
+              className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full text-sand transition-colors hover:bg-white/10"
             >
-              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              <RotateCcw className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         ) : null}
